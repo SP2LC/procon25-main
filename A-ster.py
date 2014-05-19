@@ -91,7 +91,8 @@ def distance_to_goal(table, board): #ノードとゴールノードまでの予�
             x = abs(a[0] - b[0])
             y = abs(a[1] - b[1])
             ans += x + y
-    return ans * EXCHANGE_RATE
+    #return ans * EXCHANGE_RATE
+    return ans * min(SELECTON_RATE, EXCHANGE_RATE)
 
 def tuplenode (node) : #ノードをtupleの形にした物を返す
     return (tuple([tuple(a) for a in node.board]) , node.selection)
@@ -108,21 +109,37 @@ def caliculate_cost (operations): #現在のoperationsのコストを返す
         pair = pair[1]
     return cost
 
-problem = make_problem(3, 5)
+def selection_h_star(table, selected_node):
+    distance_min = 999999999
+    next_nodes = selected_node.get_next_nodes() #looking_nodeに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
+    for direction in ["R","L","U","D"]: #中身全部取り出すぜー
+        node = next_nodes[direction]
+        if node.board != None:
+            #distance_average += distance_to_goal(table,node.board)
+            #distance_average /= 2
+            distance_min = min(distance_min, distance_to_goal(table, node.board))
+    return (distance_min / min(SELECTON_RATE, EXCHANGE_RATE)) * max(SELECTON_RATE, EXCHANGE_RATE)
+
+#problem = make_problem(3, 5)
+#answer = [[(0, 1), (1, 1), (1, 0), (1, 2), (2, 2)], [(0, 2), (2, 3), (0, 4), (2, 4), (1, 4)], [(0, 3), (2, 0), (2, 1), (1, 3), (0, 0)]]
+problem = make_problem(3, 4)
 answer = [[(0, 1), (1, 1), (1, 0), (1, 2), (2, 2)], [(0, 2), (2, 3), (0, 4), (2, 4), (1, 4)], [(0, 3), (2, 0), (2, 1), (1, 3), (0, 0)]]
 
 distance_table = create_distance_table(answer)
 queue = [] #空のキューを作成
 for i in range(len(problem)):
     for j in range(len(problem[0])):
-        queue.append((0+distance_to_goal(distance_table,problem),Node(problem, (i, j)),("S%d%d"%(i,j),()),1)) # (f*(n),(ボード2次元配列, 選択座標), 今まで辿ったノード)
+        queue.append((SELECTON_RATE+distance_to_goal(distance_table,problem),Node(problem, (i, j)),("S%d%d"%(i,j),()),1)) # (f*(n),(ボード2次元配列, 選択座標), 今まで辿ったノード)
 
 checked_nodes = set() #チェック済みのノード集合
+
+max_distance = 0
 
 while  len(queue) != 0: #キューの長さ分くりかえすでー
     f_star, looking_node, operations, selection_count = heappop(queue) #キューの先頭を取り出す
     if looking_node.board == answer : #仮に取り出したキューが正答と一致したら終了
         print operations_to_list(operations)
+        print "cost=%d" % caliculate_cost(operations)
         exit()
     checked_nodes.add(tuplenode(looking_node)) #chacked_nodes集合にチェック済みとして追加
     next_nodes = looking_node.get_next_nodes() #looking_nodeに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
@@ -130,12 +147,18 @@ while  len(queue) != 0: #キューの長さ分くりかえすでー
     for direction in ["R","L","U","D"] : #中身全部取り出すぜー
         node = next_nodes[direction]
         if node.board != None and not(tuplenode(node) in checked_nodes): #各隣接ノードがcheckd_nodesに無ければキューに追加。
-            heappush(queue, (caliculate_cost(operations)+distance_to_goal(distance_table,node.board),node,(direction, operations),selection_count))
+            distance = distance_to_goal(distance_table,node.board)
+            if distance > max_distance:
+              max_distance = distance
+              print "%s distance=%d" % (operations_to_list(operations), distance)
+            heappush(queue, (caliculate_cost(operations)+distance,node,(direction, operations),selection_count))
 
     for i in range(len(problem)): #選択するマスを変えたノードをキューに追加する。
         for j in range(len(problem[0])):
             if selection_count < LIMIT_SELECTION and operations[0][0] != "S" :
-                heappush(queue , (caliculate_cost(operations), Node(looking_node.board, (i, j)),("S%d%d"%(i,j),operations),selection_count+1))
+                #heappush(queue , (caliculate_cost(operations), Node(looking_node.board, (i, j)),("S%d%d"%(i,j),operations),selection_count+1))
+                selected_node = Node(looking_node.board, (i, j))
+                heappush(queue , (caliculate_cost(operations) + selection_h_star(distance_table, selected_node), selected_node,("S%d%d"%(i,j),operations),selection_count+1))
 
 
 print "出なかった"

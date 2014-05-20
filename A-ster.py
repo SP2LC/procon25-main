@@ -91,7 +91,6 @@ def distance_to_goal(table, board): #ノードとゴールノードまでの予�
             x = abs(a[0] - b[0])
             y = abs(a[1] - b[1])
             ans += x + y
-    #return ans * EXCHANGE_RATE
     return ans * min(SELECTON_RATE, EXCHANGE_RATE)
 
 def tuplenode (node) : #ノードをtupleの形にした物を返す
@@ -110,19 +109,19 @@ def caliculate_cost (operations): #現在のoperationsのコストを返す
     return cost
 
 def selection_h_star(table, selected_node):
-    distance_min = 999999999
+    #distance_min = 999999999
+    distance_average = 0
     next_nodes = selected_node.get_next_nodes() #looking_nodeに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
     for direction in ["R","L","U","D"]: #中身全部取り出すぜー
         node = next_nodes[direction]
         if node.board != None:
-            #distance_average += distance_to_goal(table,node.board)
-            #distance_average /= 2
-            distance_min = min(distance_min, distance_to_goal(table, node.board))
-    return (distance_min / min(SELECTON_RATE, EXCHANGE_RATE)) * max(SELECTON_RATE, EXCHANGE_RATE)
+            distance_average += distance_to_goal(table,node.board)
+            distance_average /= 2
+            #distance_min = min(distance_min, distance_to_goal(table, node.board))
+    #return (distance_min / min(SELECTON_RATE, EXCHANGE_RATE)) * max(SELECTON_RATE, EXCHANGE_RATE)
+    return (distance_average / min(SELECTON_RATE, EXCHANGE_RATE)) * max(SELECTON_RATE, EXCHANGE_RATE)
 
-#problem = make_problem(3, 5)
-#answer = [[(0, 1), (1, 1), (1, 0), (1, 2), (2, 2)], [(0, 2), (2, 3), (0, 4), (2, 4), (1, 4)], [(0, 3), (2, 0), (2, 1), (1, 3), (0, 0)]]
-problem = make_problem(3, 4)
+problem = make_problem(3, 5)
 answer = [[(0, 1), (1, 1), (1, 0), (1, 2), (2, 2)], [(0, 2), (2, 3), (0, 4), (2, 4), (1, 4)], [(0, 3), (2, 0), (2, 1), (1, 3), (0, 0)]]
 
 distance_table = create_distance_table(answer)

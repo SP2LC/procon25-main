@@ -11,11 +11,6 @@ from collections import deque
 from heapq import heappush, heappop
 from copy import deepcopy,copy
 
-
-LIMIT_SELECTION = 5 #選択上限、適宜変更
-SELECTON_RATE = 1 #選択コストレート、適宜変更
-EXCHANGE_RATE = 2 #交換コストレート、適宜変更
-
 class Node :
     def __init__ (self, board, selection):
         self.board = board
@@ -99,7 +94,7 @@ def distance_to_goal(table, board): #ノードとゴールノードまでの予�
             y = abs(a[1] - b[1])
             ans += x + y
     #return ans * EXCHANGE_RATE
-    return ans * min(SELECTON_RATE, EXCHANGE_RATE)
+    return ans* min(SELECTON_RATE, EXCHANGE_RATE)
 
 def tuplenode (node) : #ノードをtupleの形にした物を返す
     return (tuple([tuple(a) for a in node.board]) , node.selection)
@@ -118,13 +113,12 @@ def caliculate_cost (operations): #現在のoperationsのコストを返す
 
 def selection_h_star(x,y):
     goal_point = distance_table[(x,y)]
-    distance = abs(goal_point[0]-x)+abs(goal_point[1]-y)
-    distance = distance*1.0
+    distance = abs(goal_point[0]-x)+abs(goal_point[1]-y)*5
     if distance == 0 :
-      distance = 0.9
-    else :
-      distance = (1 / distance)
-    return int(distance*50)
+      distance = 1
+    distance = (1 / distance)
+    return int(distance)
+    #return distance
 
 
 def split(img, columns, rows):
@@ -317,6 +311,12 @@ ppmFile = open(sys.argv[1], "rb").read(100)
 splitStrings = re.split("[\t\r\n ]+", ppmFile)
 splitColumns = int(splitStrings[2]) # 横の分割数
 splitRows = int(splitStrings[3]) # 縦の分割数
+LIMIT_SELECTION = int(splitStrings[5]) #選択上限、適宜変更
+SELECTON_RATE = int(splitStrings[7]) #選択コストレート、適宜変更
+EXCHANGE_RATE = int(splitStrings[8]) #交換コストレート、適宜変更
+print LIMIT_SELECTION
+print SELECTON_RATE
+print EXCHANGE_RATE
 
 # 画像の読み込み
 # 上下逆で読まれるので、flipud関数で上下を反転させる
@@ -440,6 +440,7 @@ newImg = np.hstack(
 plt.imshow(newImg)
 plt.show()#ここまで画像認識
 
+
 problem = make_problem(splitColumns, splitRows)
 answer = sortedImages
 
@@ -451,7 +452,7 @@ for i in range(len(problem)):
 
 checked_nodes = set() #チェック済みのノード集合
 
-max_distance = 0
+min_distance = 9999999
 
 while  len(queue) != 0: #キューの長さ分くりかえすでー
     f_star, looking_node, operations, selection_count = heappop(queue) #キューの先頭を取り出す
@@ -465,18 +466,21 @@ while  len(queue) != 0: #キューの長さ分くりかえすでー
     for direction in ["R","L","U","D"] : #中身全部取り出すぜー
         node = next_nodes[direction]
         if node.board != None and not(tuplenode(node) in checked_nodes): #各隣接ノードがcheckd_nodesに無ければキューに追加。
-            distance = distance_to_goal(distance_table,node.board)
-            if distance > max_distance:
-              max_distance = distance
+            distance = distance_to_goal(distance_table,node.board)#+ selection_h_star(node.selection[0],node.selection[1])
+            if distance <= min_distance:
+              min_distance = distance
               print "%s distance=%d" % (operations_to_list(operations), distance)
-            heappush(queue, (caliculate_cost(operations)+distance,node,(direction, operations),selection_count))
+            heappush(queue, (caliculate_cost(operations)+ distance,node,(direction, operations),selection_count))
 
     for i in range(len(problem)): #選択するマスを変えたノードをキューに追加する。
         for j in range(len(problem[0])):
             if selection_count < LIMIT_SELECTION and operations[0][0] != "S" :
-                #heappush(queue , (caliculate_cost(operations), Node(looking_node.board, (i, j)),("S%d%d"%(i,j),operations),selection_count+1))
                 selected_node = Node(looking_node.board, (i, j))
-                heappush(queue , (caliculate_cost(operations) + selection_h_star(i,j), selected_node,("S%d%d"%(i,j),operations),selection_count+1))
+                distance = distance_to_goal(distance_table,selected_node.board)#+ selection_h_star(selected_node.board[i][j][0],selected_node.board[i][j][1])
+                if distance <= min_distance:
+                  min_distance = distance
+                  print "%s distance=%d" % (operations_to_list(operations), distance)
+                heappush(queue , (caliculate_cost(operations), selected_node,("S%d%d"%(i,j),operations),selection_count+1))
 
 
 print "出なかった"

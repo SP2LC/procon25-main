@@ -113,11 +113,11 @@ def caliculate_cost (operations): #現在のoperationsのコストを返す
 
 def selection_h_star(x,y):
     goal_point = distance_table[(x,y)]
-    distance = abs(goal_point[0]-x)+abs(goal_point[1]-y)*5
+    distance = abs(goal_point[0]-x)+abs(goal_point[1]-y)*1.0
     if distance == 0 :
       distance = 1
     distance = (1 / distance)
-    return int(distance)
+    return distance
     #return distance
 
 
@@ -442,13 +442,13 @@ plt.show()#ここまで画像認識
 
 
 problem = make_problem(splitColumns, splitRows)
-answer = sortedImages
+answer =  sortedImages
 
 distance_table = create_distance_table(answer)
 queue = [] #空のキューを作成
 for i in range(len(problem)):
     for j in range(len(problem[0])):
-        queue.append((SELECTON_RATE+distance_to_goal(distance_table,problem),Node(problem, (i, j)),("S%d%d"%(i,j),()),1)) # (f*(n),(ボード2次元配列, 選択座標), 今まで辿ったノード)
+        queue.append((distance_to_goal(distance_table,problem)+selection_h_star(i, j),Node(problem, (i, j)),("S%d%d"%(i,j),()),1)) # (f*(n),(ボード2次元配列, 選択座標), 今まで辿ったノード)
 
 checked_nodes = set() #チェック済みのノード集合
 
@@ -466,7 +466,7 @@ while  len(queue) != 0: #キューの長さ分くりかえすでー
     for direction in ["R","L","U","D"] : #中身全部取り出すぜー
         node = next_nodes[direction]
         if node.board != None and not(tuplenode(node) in checked_nodes): #各隣接ノードがcheckd_nodesに無ければキューに追加。
-            distance = distance_to_goal(distance_table,node.board)#+ selection_h_star(node.selection[0],node.selection[1])
+            distance = distance_to_goal(distance_table,node.board)+ selection_h_star(node.selection[0],node.selection[1])
             if distance <= min_distance:
               min_distance = distance
               print "%s distance=%d" % (operations_to_list(operations), distance)
@@ -476,11 +476,11 @@ while  len(queue) != 0: #キューの長さ分くりかえすでー
         for j in range(len(problem[0])):
             if selection_count < LIMIT_SELECTION and operations[0][0] != "S" :
                 selected_node = Node(looking_node.board, (i, j))
-                distance = distance_to_goal(distance_table,selected_node.board)#+ selection_h_star(selected_node.board[i][j][0],selected_node.board[i][j][1])
+                distance = distance_to_goal(distance_table,selected_node.board)+ selection_h_star(selected_node.board[i][j][0],selected_node.board[i][j][1])
                 if distance <= min_distance:
                   min_distance = distance
                   print "%s distance=%d" % (operations_to_list(operations), distance)
-                heappush(queue , (caliculate_cost(operations), selected_node,("S%d%d"%(i,j),operations),selection_count+1))
+                heappush(queue , (caliculate_cost(operations)+distance, selected_node,("S%d%d"%(i,j),operations),selection_count+1))
 
 
 print "出なかった"

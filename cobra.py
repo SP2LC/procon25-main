@@ -190,7 +190,7 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
 
 # MARK: main
 
-if len(sys.argv) != 2:
+if len(sys.argv) < 2:
   print "引数が間違っておるぞ!"
   sys.exit(1)
 
@@ -210,8 +210,10 @@ print EXCHANGE_RATE
 # 画像の読み込み
 # 上下逆で読まれるので、flipud関数で上下を反転させる
 # 環境によっては必要ない？python2.7.6
-img = np.flipud(mpimg.imread(sys.argv[1]))
-#img = mpimg.imread(sys.argv[1])
+if len(sys.argv) == 3 and sys.argv[2] == "-f":
+  img = np.flipud(mpimg.imread(sys.argv[1]))
+else:
+  img = mpimg.imread(sys.argv[1])
 # 画像を分割する
 splitImages = split(img, splitColumns, splitRows)
 

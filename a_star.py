@@ -118,6 +118,11 @@ def selection_h_star(x,y):
     return distance
     #return distance
 
+def encode_answer_format(operations_list):
+    print operations_list
+
+    return "operate"
+
 def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, distance_table
     LIMIT_SELECTION = limit

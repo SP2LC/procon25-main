@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from heapq import heappush, heappop
 from copy import deepcopy,copy
+import answer_relation
 
 # グローバル変数の宣言
 LIMIT_SELECTION = 0
@@ -168,8 +169,8 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
         if looking_node.board == answer : #仮に取り出したキューが正答と一致したら終了
             print operations_to_list(operations)
             print "cost=%d" % caliculate_cost(operations)
-	    print encode_answer_format(operations_to_list(operations))
-            exit()
+            return encode_answer_format(operations_to_list(operations))
+
         checked_nodes.add(tuplenode(looking_node)) #chacked_nodes集合にチェック済みとして追加
         next_nodes = looking_node.get_next_nodes() #looking_nodeに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
         
@@ -186,3 +187,4 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
 
     print "出なかった"
+    return False

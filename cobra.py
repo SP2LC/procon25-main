@@ -8,7 +8,13 @@ import math
 import itertools
 import binascii
 from collections import deque
+from PIL import Image
+from StringIO import StringIO
+import time
 import a_star
+import answer_relation
+
+VERSION = "simple A-star"
 
 def split(img, columns, rows):
     images = []
@@ -193,10 +199,13 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
 if len(sys.argv) < 2:
   print "引数が間違っておるぞ!"
   sys.exit(1)
-
+time_start = time.clock()
 # 分割数の読み込み
 # 100という数字は決め打ち!すばらしい!
-ppmFile = open(sys.argv[1], "rb").read(100)
+
+ppmFile_content = answer_relation.get_problem(sys.argv[1])
+
+ppmFile = ppmFile_content[:100]
 splitStrings = re.split("[\t\r\n ]+", ppmFile)
 splitColumns = int(splitStrings[2]) # 横の分割数
 splitRows = int(splitStrings[3]) # 縦の分割数
@@ -211,9 +220,11 @@ print EXCHANGE_RATE
 # 上下逆で読まれるので、flipud関数で上下を反転させる
 # 環境によっては必要ない？python2.7.6
 if len(sys.argv) == 3 and sys.argv[2] == "-f":
-  img = np.flipud(mpimg.imread(sys.argv[1]))
+  img = np.flipud(np.asarray(Image.open(StringIO(ppmFile_content))))
+  #img = np.flipud(mpimg.imread(sys.argv[1]))
 else:
-  img = mpimg.imread(sys.argv[1])
+  img = np.asarray(Image.open(StringIO(ppmFile_content)))
+  #img = mpimg.imread(sys.argv[1])
 # 画像を分割する
 splitImages = split(img, splitColumns, splitRows)
 
@@ -331,4 +342,7 @@ newImg = np.hstack(
 plt.imshow(newImg)
 plt.show()#ここまで画像認識
 
-a_star.solve(sortedImages, splitColumns, splitRows, LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE)
+answer_string = a_star.solve(sortedImages, splitColumns, splitRows, LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE)
+time_end = time.clock()
+runtime = str(int(time_end - time_start))
+answer_relation.post_answer(answer_string, runtime, VERSION, sys.argv[1])

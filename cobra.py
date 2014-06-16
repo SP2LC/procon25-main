@@ -33,13 +33,6 @@ def split(img, columns, rows):
       images.append(column)
     return images
 
-# 色を比較する
-def compareColor(a, b):
-    # 各要素の差の二乗は簡単に書ける。
-    # -や*は、配列の各要素それぞれに対して実行される。
-    # np.sumで合計を求める。
-    return math.sqrt(np.sum((a-b)*(a-b)))
-
 # 画像の辺を比較する
 # flag=Trueの場合、aの右にbを置く
 # flag=Falseの場合、aの下にbを置く
@@ -54,36 +47,9 @@ def compare(imgA, imgB, flag):
       # 縦に比較する場合
       lineA = imgA[height - 1, 0:width]
       lineB = imgB[0, 0:width]
-    #difference = 0.0
-    #for i in range(len(lineA)):
-    #  difference += compareColor(lineA[i], lineB[i])
+    # 配列の各ピクセルに対して、差の二乗を3色分足し合わせてルートを計算し、配列全体の合計を計算する。
     difference = np.sum(np.sqrt(np.sum((lineA-lineB)*(lineA-lineB), axis=1)))
     return difference / len(lineA)
-
-def sortWorst(dic):
-    #averages = {}
-    #for k, v in dic.items():
-    #  # 平均を求める
-    #  avg = 0.0
-    #  for candicate in v:
-    #    avg += candicate[1]
-    #  avg = avg / len(v)
-    #  averages[k] = avg
-    #return sorted(averages.items(), key=lambda a: a[1])
-    minItems = {}
-    for k, v in dic.items():
-      minValue = min(v, key=lambda a: a[1])
-      minItems[k] = minValue[1]
-    return sorted(minItems.items(), key=lambda a: a[1])
-
-def firstSame(listA, listB, key=lambda a: a):
-    bSet = {key(b) for b in listB}
-    for a in listA:
-      if key(a) in bSet:
-        for b in listB:
-          if key(a) == key(b):
-            return a
-    return None
 
 def findRightBottom(resultW, resultH):
     lst = []
@@ -121,22 +87,6 @@ def getNeighbours(x, y, array):
     if y + 1 < height:
       result[3] = array[x][y + 1]
     return result
-
-def firstSameN(lists, key=lambda a: a):
-    #bSet = {key(b) for b in listB}
-    sets = [set(map(key, lst)) for lst in lists]
-    for a in lists[0]:
-      if all([(key(a) in s) for s in sets]):
-        return a
-    return None
-
-# リストの各要素どうしを足す
-def arrayAdd(xs, ys):
-    return map(lambda x, y: x + y, xs, ys)
-
-# aがn個入ったリストを作る
-def repeat(a, n):
-    return [a for i in range(n)]
 
 def average(xs):
     return sum(xs) / len(xs)
@@ -240,32 +190,15 @@ for imgANum in itertools.product(range(splitColumns), range(splitRows)):
   print "H  imgB=%s" % ["%s %f" % a for a in resultAToBHeight[imgANum][0:3]]
   print "W  imgB=%s" % ["%s %f" % a for a in resultAToBWidth[imgANum][0:3]]
 
-# 一番下になる画像を探す
-# ワーストsplitColumnsを取る
-worstHeightAll = sortWorst(resultAToBHeight)
-worstWidthAll = sortWorst(resultAToBWidth)
-worstHeight = sortWorst(resultAToBHeight)[-splitColumns:]
-worstWidth = sortWorst(resultAToBWidth)[-splitRows:]
-print "worstHeight %d images" % splitColumns
-for k, v in worstHeight:
-  print "%s %f" % (k, v)
-print "worstWidth %d images" % splitRows
-for k, v in worstWidth:
-  print "%s %f" % (k, v)
-# 二つのワーストの両方に出てくる画像で、一番最初のものが右下っぽい
-#rightBottom = firstSame(worstWidth, worstHeight, key=lambda a: a[0])
 rightBottom = findRightBottom(resultAToBWidth, resultAToBHeight)
 print "右下はこいつだ!"
 print rightBottom[0]
 # 逆引きリストを作る
-worstImgNumsWidth = [imgNum for imgNum, v in worstWidth]
-worstImgNumsHeight = [imgNum for imgNum, v in worstHeight]
 resultBToAHeight = {}
 resultBToAWidth = {}
 
 for k, v in resultAToBWidth.items():
   for candicate in v:
-    #if not k in worstImgNumsWidth:
     if True:
       if not candicate[0] in resultBToAWidth:
         resultBToAWidth[candicate[0]] = []
@@ -274,7 +207,6 @@ for k, v in resultAToBWidth.items():
 
 for k, v in resultAToBHeight.items():
   for candicate in v:
-    #if not k in worstImgNumsHeight:
     if True:
       if not candicate[0] in resultBToAHeight:
         resultBToAHeight[candicate[0]] = []
@@ -291,22 +223,6 @@ rightTop = findRightBottom(resultAToBWidth, resultBToAHeight)
 print "右上はこいつだ!"
 print rightTop[0]
 
-
-print(worstWidth)
-worstWidthDic = dict(worstWidthAll)
-worstWidth = []
-#column = list(range(splitRows))
-nowImage = rightBottom[0][0]
-#column[splitRows - 1] = (nowImage, 0)
-worstWidth.append((nowImage, worstWidthDic[nowImage]))
-for i in range(splitRows - 2, -1, -1):
-  nowImage = resultBToAHeight[nowImage][0][0]
-  #column[i] = nowImage
-  worstWidth.append((nowImage, worstWidthDic[nowImage]))
-print(worstWidth)
-worstWidth.reverse()
-
-#sortedImages = sortImages(resultBToAWidth, splitRows, splitColumns, worstWidth)
 sortedImages = createArray(splitColumns, splitRows)
 startList = [
   ((splitColumns - 1, splitRows - 1), rightBottom[0][0], rightBottom[0][1]),
@@ -317,14 +233,8 @@ startList = [
 sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, startList, sortedImages)
 print sortedImages
 
-#np.hstack([np.vstack(map(lambda a: splitImages[a[1], a[0]], col)) for col in sortImages])
-#newImg = np.hstack(
-#  [np.vstack([splitImages[a[0]][a[1]] for a in col])
-#    for col in sortedImages]
-#)
 newImg = np.hstack(
   [np.vstack([splitImages[a[0]][a[1]] for a in row])
-#    for row in np.array(sortedImages).transpose((1, 0, 2))]
     for row in np.array(sortedImages)]
 )
 

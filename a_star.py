@@ -98,7 +98,7 @@ def distance_to_goal(table, board): #ノードとゴールノードまでの予�
             y = abs(a[1] - b[1])
             ans += x + y
     #return ans * EXCHANGE_RATE
-    return ans * min(SELECTON_RATE, EXCHANGE_RATE) * 0.78
+    return ans * min(SELECTON_RATE, EXCHANGE_RATE) * 0.75
 
 def tuplenode (node) : #ノードをtupleの形にした物を返す
     return (tuple([tuple(a) for a in node.board]) , node.selection)
@@ -171,13 +171,8 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     min_distance = 9999999
 
     while  len(queue) != 0: #キューの長さ分くりかえすでー
-        f_star, looking_node, operations, selection_count = heappop(queue) #キューの先頭を取り出す
+        dummy, looking_node, operations, selection_count = heappop(queue) #キューの先頭を取り出す
         g_star = caliculate_cost(operations)
-        h_star = distance_to_goal(distance_table,looking_node.board)
-        f_star = g_star + h_star
-        if h_star <= min_distance:
-             min_distance = h_star
-             print "%s distance=%d" % (operations_to_list(operations), h_star)
         if looking_node.board == answer : #仮に取り出したキューが正答と一致したら終了
             print operations_to_list(operations)
             print "cost=%d" % caliculate_cost(operations)
@@ -186,18 +181,32 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
         checked_nodes.add(tuplenode(looking_node)) #chacked_nodes集合にチェック済みとして追加
         next_nodes = looking_node.get_next_nodes() #looking_nodeに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
         
+        #print "START_LOOP"
         for key, node in next_nodes.items() : #中身全部取り出すぜー
             cost = 0
+            select = False
 
             if key[0] != looking_node.selection :
+                select = True
                 cost += SELECTON_RATE
-                selection_count += 1
+                #selection_count += 1
                 added_operation = (key[1],("S%d%d"%key[0],operations))
             else:
                 added_operation = (key[1],operations)
 
-            if node.board != None and not(tuplenode(node) in checked_nodes) and selection_count < LIMIT_SELECTION : #各隣接ノードがcheckd_nodesに無ければキューに追加。
-                heappush(queue, (h_star + cost + EXCHANGE_RATE, node, added_operation, selection_count))
+            if node.board != None and not(tuplenode(node) in checked_nodes) and selection_count <= LIMIT_SELECTION: #各隣接ノードがcheckd_nodesに無ければキューに追加。
+                h_star = distance_to_goal(distance_table,node.board)
+                f_star = g_star + h_star
+                if h_star <= min_distance:
+                     min_distance = h_star
+                     print "%s distance=%d" % (operations_to_list(operations), h_star)
+                #print "PUSH"
+                if select:
+                  new_selection_count = selection_count + 1
+                else:
+                  new_selection_count = selection_count
+                heappush(queue, (f_star + cost + EXCHANGE_RATE, node, added_operation, new_selection_count))
+                #print (f_star + cost + EXCHANGE_RATE, node, added_operation, selection_count)
 
 
 

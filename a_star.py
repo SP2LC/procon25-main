@@ -98,7 +98,7 @@ def distance_to_goal(table, board): #ノードとゴールノードまでの予�
             y = abs(a[1] - b[1])
             ans += x + y
     #return ans * EXCHANGE_RATE
-    return ans * min(SELECTON_RATE, EXCHANGE_RATE) * 0.75
+    return ans * min(SELECTON_RATE, EXCHANGE_RATE)
 
 def tuplenode (node) : #ノードをtupleの形にした物を返す
     return (tuple([tuple(a) for a in node.board]) , node.selection)
@@ -194,7 +194,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
             else:
                 added_operation = (key[1],operations)
 
-            if node.board != None and not(tuplenode(node) in checked_nodes) and selection_count <= LIMIT_SELECTION: #各隣接ノードがcheckd_nodesに無ければキューに追加。
+            if node.board != None and not(tuplenode(node) in checked_nodes): #各隣接ノードがcheckd_nodesに無ければキューに追加。
                 h_star = distance_to_goal(distance_table,node.board)
                 f_star = g_star + h_star
                 if h_star <= min_distance:
@@ -205,7 +205,8 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
                   new_selection_count = selection_count + 1
                 else:
                   new_selection_count = selection_count
-                heappush(queue, (f_star + cost + EXCHANGE_RATE, node, added_operation, new_selection_count))
+                if new_selection_count <= LIMIT_SELECTION:
+                  heappush(queue, (f_star + cost + EXCHANGE_RATE, node, added_operation, new_selection_count))
                 #print (f_star + cost + EXCHANGE_RATE, node, added_operation, selection_count)
 
 

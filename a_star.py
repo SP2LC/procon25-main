@@ -118,6 +118,27 @@ def selection_h_star(x,y):
     return distance
     #return distance
 
+def encode_answer_format(operations_list):
+    #print operations_list
+    selectcount = 0
+    changecount = 0
+    ans = ""
+    word = ""
+    for i in range(len(operations_list)):
+        if((operations_list[i] == "L")or(operations_list[i] == "R")or(operations_list[i] == "U")or(operations_list[i] == "D")):
+            word += operations_list[i]
+            changecount +=1
+        else:   
+            ans = "\n" + word[::-1] + ans
+            ans = "\n"  + str(changecount)  +ans
+            ans = "\n" + operations_list[i][1:] + ans
+            word = ""
+            changecount = 0
+            selectcount += 1
+
+    ans = str(selectcount) + ans
+    return ans
+
 def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, distance_table
     LIMIT_SELECTION = limit
@@ -147,7 +168,8 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
         if looking_node.board == answer : #仮に取り出したキューが正答と一致したら終了
             print operations_to_list(operations)
             print "cost=%d" % caliculate_cost(operations)
-            exit()
+            return encode_answer_format(operations_to_list(operations))
+
         checked_nodes.add(tuplenode(looking_node)) #chacked_nodes集合にチェック済みとして追加
         next_nodes = looking_node.get_next_nodes() #looking_nodeに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
         
@@ -164,3 +186,4 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
 
     print "出なかった"
+    return False

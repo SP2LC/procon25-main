@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from heapq import heappush, heappop
 from copy import deepcopy,copy
-import answer_relation
 
 # グローバル変数の宣言
 LIMIT_SELECTION = 0

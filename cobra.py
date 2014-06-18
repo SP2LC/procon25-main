@@ -12,7 +12,7 @@ from PIL import Image
 from StringIO import StringIO
 import time
 import a_star
-import answer_relation
+import communication
 
 VERSION = "simple A-star"
 
@@ -203,7 +203,7 @@ time_start = time.clock()
 # 分割数の読み込み
 # 100という数字は決め打ち!すばらしい!
 
-ppmFile_content = answer_relation.get_problem(sys.argv[1])
+ppmFile_content = communication.get_problem(sys.argv[1])
 
 ppmFile = ppmFile_content[:100]
 splitStrings = re.split("[\t\r\n ]+", ppmFile)
@@ -345,4 +345,6 @@ plt.show()#ここまで画像認識
 answer_string = a_star.solve(sortedImages, splitColumns, splitRows, LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE)
 time_end = time.clock()
 runtime = str(int(time_end - time_start))
-answer_relation.post_answer(answer_string, runtime, VERSION, sys.argv[1])
+print "runtime = " + runtime
+print answer_string
+communication.post_answer(answer_string, runtime, VERSION, sys.argv[1])

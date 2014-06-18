@@ -15,17 +15,23 @@ class Node :
         self.selection = selection
 
     def get_next_nodes(self): #渡したノードに隣接するノードを返す
+
         nodes_dic = {}
         board = self.board
-        x,y = self.selection
-        #右と交換
-        nodes_dic["R"] = Node(exchange(board,(x, y), (x + 1, y)) , (x + 1, y))
-        #左と交換
-        nodes_dic["L"] = Node(exchange(board,(x, y), (x - 1, y)) , (x - 1, y))
-        #上と交換
-        nodes_dic["U"] = Node(exchange(board,(x, y), (x, y - 1)) , (x, y - 1))
-        #下と交換
-        nodes_dic["D"] = Node(exchange(board,(x, y), (x, y + 1)) , (x, y + 1))
+
+        for i in range(len(board)): #選択するマスを変えたノードをキューに追加する。
+            for j in range(len(board[0])):
+            
+                x,y = (i,j)
+                #右と交換
+                nodes_dic[((i,j),"R")] = Node(exchange(board,(x, y), (x + 1, y)) , (x + 1, y))
+                #左と交換
+                nodes_dic[((i,j),"L")] = Node(exchange(board,(x, y), (x - 1, y)) , (x - 1, y))
+                #上と交換
+                nodes_dic[((i,j),"U")] = Node(exchange(board,(x, y), (x, y - 1)) , (x, y - 1))
+                #下と交換
+                nodes_dic[((i,j),"D")] = Node(exchange(board,(x, y), (x, y + 1)) , (x, y + 1))
+
         return nodes_dic
 
 
@@ -149,9 +155,16 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
     distance_table = create_distance_table(answer)
     queue = [] #空のキューを作成
-    for i in range(len(problem)):
-        for j in range(len(problem[0])):
-            queue.append((SELECTON_RATE, Node(problem, (i, j)),("S%d%d"%(i,j),()),1)) # (f*(n),(ボード2次元配列, 選択座標), 今まで辿ったノード)
+
+    next_nodes = Node(problem,(0,0)).get_next_nodes() #problemに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
+    for key, node in next_nodes.items() : #中身全部取り出すぜー
+        added_operation = (key[1],("S%d%d"%key[0],()))
+        if node.board != None :
+            heappush(queue, (SELECTON_RATE+EXCHANGE_RATE, node, added_operation, 1))
+
+
+
+    # (f*(n),(ボード2次元配列, 選択座標), 今まで辿ったノード)
 
     checked_nodes = set() #チェック済みのノード集合
 
@@ -160,7 +173,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     while  len(queue) != 0: #キューの長さ分くりかえすでー
         f_star, looking_node, operations, selection_count = heappop(queue) #キューの先頭を取り出す
         g_star = caliculate_cost(operations)
-        h_star = distance_to_goal(distance_table,looking_node.board)+selection_h_star(i, j)
+        h_star = distance_to_goal(distance_table,looking_node.board)
         f_star = g_star + h_star
         if h_star <= min_distance:
              min_distance = h_star
@@ -173,16 +186,19 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
         checked_nodes.add(tuplenode(looking_node)) #chacked_nodes集合にチェック済みとして追加
         next_nodes = looking_node.get_next_nodes() #looking_nodeに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
         
-        for direction in ["R","L","U","D"] : #中身全部取り出すぜー
-            node = next_nodes[direction]
-            if node.board != None and not(tuplenode(node) in checked_nodes): #各隣接ノードがcheckd_nodesに無ければキューに追加。
-                heappush(queue, (f_star + EXCHANGE_RATE, node,(direction, operations),selection_count))
+        for key, node in next_nodes.items() : #中身全部取り出すぜー
+            cost = 0
 
-        for i in range(len(problem)): #選択するマスを変えたノードをキューに追加する。
-            for j in range(len(problem[0])):
-                if selection_count < LIMIT_SELECTION and operations[0][0] != "S" :
-                    selected_node = Node(looking_node.board, (i, j))
-                    heappush(queue , (f_star + SELECTON_RATE, selected_node,("S%d%d"%(i,j),operations),selection_count+1))
+            if key[0] != looking_node.selection :
+                cost += SELECTON_RATE
+                selection_count += 1
+                added_operation = (key[1],("S%d%d"%key[0],operations))
+            else:
+                added_operation = (key[1],operations)
+
+            if node.board != None and not(tuplenode(node) in checked_nodes) and selection_count < LIMIT_SELECTION : #各隣接ノードがcheckd_nodesに無ければキューに追加。
+                heappush(queue, (h_star + cost + EXCHANGE_RATE, node, added_operation, selection_count))
+
 
 
     print "出なかった"

@@ -97,8 +97,7 @@ def distance_to_goal(table, board): #ノードとゴールノードまでの予�
             x = abs(a[0] - b[0])
             y = abs(a[1] - b[1])
             ans += x + y
-    #return ans * EXCHANGE_RATE
-    return ans * min(SELECTON_RATE, EXCHANGE_RATE)
+    return ans * EXCHANGE_RATE
 
 def tuplenode (node) : #ノードをtupleの形にした物を返す
     return (tuple([tuple(a) for a in node.board]) , node.selection)
@@ -122,10 +121,8 @@ def selection_h_star(x,y):
       distance = 1
     distance = (1 / distance)
     return distance
-    #return distance
 
-def encode_answer_format(operations_list):
-    #print operations_list
+def encode_answer_format(operations_list): 
     selectcount = 0
     changecount = 0
     ans = ""
@@ -180,8 +177,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
         checked_nodes.add(tuplenode(looking_node)) #chacked_nodes集合にチェック済みとして追加
         next_nodes = looking_node.get_next_nodes() #looking_nodeに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
-        
-        #print "START_LOOP"
+
         for key, node in next_nodes.items() : #中身全部取り出すぜー
             cost = 0
             select = False
@@ -189,7 +185,6 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
             if key[0] != looking_node.selection :
                 select = True
                 cost += SELECTON_RATE
-                #selection_count += 1
                 added_operation = (key[1],("S%d%d"%key[0],operations))
             else:
                 added_operation = (key[1],operations)
@@ -200,14 +195,12 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
                 if h_star <= min_distance:
                      min_distance = h_star
                      print "%s distance=%d" % (operations_to_list(operations), h_star)
-                #print "PUSH"
                 if select:
                   new_selection_count = selection_count + 1
                 else:
                   new_selection_count = selection_count
                 if new_selection_count <= LIMIT_SELECTION:
                   heappush(queue, (f_star + cost + EXCHANGE_RATE, node, added_operation, new_selection_count))
-                #print (f_star + cost + EXCHANGE_RATE, node, added_operation, selection_count)
 
 
 

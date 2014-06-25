@@ -14,7 +14,8 @@ import time
 import a_star
 import communication
 
-VERSION = "simple A-star"
+VERSION = "新しいグラフ構造でシンプルなMD"
+TO_COMMUNICATION = True #Trueのときは自鯖の回答サーバー、FalseのときはlocalhostのProconSimpleServerと通信します。
 
 def split(img, columns, rows):
     images = []
@@ -153,7 +154,14 @@ time_start = time.clock()
 # 分割数の読み込み
 # 100という数字は決め打ち!すばらしい!
 
-ppmFile_content = communication.get_problem(sys.argv[1])
+if len(sys.argv) == 3 and sys.argv[2] == "-p":
+  TO_COMMUNICATION = False
+  print "communication with Proocn Simple Server at localhost"
+else:
+  TO_COMMUNICATION = True
+  print "communication with sp2lc.salesio-sp.ac.jp/procon.php"
+
+ppmFile_content = communication.get_problem(sys.argv[1],TO_COMMUNICATION)
 
 ppmFile = ppmFile_content[:100]
 splitStrings = re.split("[\t\r\n ]+", ppmFile)
@@ -167,14 +175,8 @@ print SELECTON_RATE
 print EXCHANGE_RATE
 
 # 画像の読み込み
-# 上下逆で読まれるので、flipud関数で上下を反転させる
-# 環境によっては必要ない？python2.7.6
-if len(sys.argv) == 3 and sys.argv[2] == "-f":
-  img = np.flipud(np.asarray(Image.open(StringIO(ppmFile_content))))
-  #img = np.flipud(mpimg.imread(sys.argv[1]))
-else:
-  img = np.asarray(Image.open(StringIO(ppmFile_content)))
-  #img = mpimg.imread(sys.argv[1])
+img = np.asarray(Image.open(StringIO(ppmFile_content)))
+
 # 画像を分割する
 splitImages = split(img, splitColumns, splitRows)
 
@@ -257,4 +259,4 @@ time_end = time.clock()
 runtime = str(int(time_end - time_start))
 print "runtime = " + runtime
 print answer_string
-communication.post_answer(answer_string, runtime, VERSION, sys.argv[1])
+print (communication.post_answer(answer_string, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))

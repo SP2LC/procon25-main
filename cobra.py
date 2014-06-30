@@ -14,7 +14,7 @@ import time
 import a_star
 import communication
 
-VERSION = "新しいグラフ構造でシンプルなMD"
+VERSION = "一回選択したマスは選択しない,周囲８マスは選択しない"
 TO_COMMUNICATION = True #Trueのときは自鯖の回答サーバー、FalseのときはlocalhostのProconSimpleServerと通信します。
 
 def split(img, columns, rows):
@@ -259,4 +259,5 @@ time_end = time.clock()
 runtime = str(int(time_end - time_start))
 print "runtime = " + runtime
 print answer_string
-print (communication.post_answer(answer_string, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))
+if not(len(sys.argv) == 3 and sys.argv[2] == "-d"):
+  print (communication.post_answer(answer_string, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))

@@ -14,7 +14,7 @@ import time
 import a_star
 import communication
 
-VERSION = "新しいグラフ構造でシンプルなMD(distance=0防止版)"
+VERSION = "新しいグラフ構造でシンプルなMD(deepcopyしない版)"
 TO_COMMUNICATION = True #Trueのときは自鯖の回答サーバー、FalseのときはlocalhostのProconSimpleServerと通信します。
 
 def split(img, columns, rows):

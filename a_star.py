@@ -69,6 +69,13 @@ def exchange (then_board, start, destination): # then_boadのstartとdestination
     if not(0 <= new_x < len(then_board) and 0 <= new_y < len(then_board[0])):
         return None
 
+    startImg = then_board[x][y]
+    destImg = then_board[new_x][new_y]
+
+    return [[destImg if (x, y) == start
+      else (startImg if (x, y) == destination else then_board[x][y])
+      for y in range(len(then_board[0]))] for x in range(len(then_board))]
+
     board = copy(then_board)
     board[x] = deepcopy(then_board[x])
 

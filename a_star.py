@@ -132,9 +132,9 @@ def encode_answer_format(operations_list):
             word += operations_list[i]
             changecount +=1
         else:   
-            ans = "\n" + word[::-1] + ans
-            ans = "\n"  + str(changecount)  +ans
-            ans = "\n" + operations_list[i][1:] + ans
+            ans = "\r\n" + word[::-1] + ans
+            ans = "\r\n"  + str(changecount)  +ans
+            ans = "\r\n" + operations_list[i][1:] + ans
             word = ""
             changecount = 0
             selectcount += 1

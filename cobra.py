@@ -14,7 +14,7 @@ import time
 import a_star
 import communication
 
-VERSION = "simple A-star"
+VERSION = "new_graph(distance=0防止版)"
 
 def split(img, columns, rows):
     images = []

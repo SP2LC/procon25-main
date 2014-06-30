@@ -194,7 +194,10 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
                 f_star = g_star + h_star
                 if h_star <= min_distance:
                      min_distance = h_star
-                     print "%s distance=%d" % (operations_to_list(operations), h_star)
+                     print "%s distance=%d" % (operations_to_list(added_operation), h_star)
+                     if int(h_star) == 0:
+                       cost = -1000000000
+                       print "stop!"
                 if select:
                   new_selection_count = selection_count + 1
                 else:

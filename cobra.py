@@ -14,7 +14,11 @@ import time
 import a_star
 import communication
 
+<<<<<<< HEAD
 VERSION = "一回選択したマスは選択しない,周囲８マスは選択しない"
+=======
+VERSION = "新しいグラフ構造でシンプルなMD(distance=0防止版)"
+>>>>>>> origin/develop
 TO_COMMUNICATION = True #Trueのときは自鯖の回答サーバー、FalseのときはlocalhostのProconSimpleServerと通信します。
 
 def split(img, columns, rows):

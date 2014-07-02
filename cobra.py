@@ -16,6 +16,7 @@ import communication
 
 VERSION = "新しいグラフ構造でシンプルなMD(deepcopyしない版)"
 TO_COMMUNICATION = True #Trueのときは自鯖の回答サーバー、FalseのときはlocalhostのProconSimpleServerと通信します。
+IMAGE_WINDOW = True
 
 def split(img, columns, rows):
     images = []
@@ -154,12 +155,20 @@ time_start = time.clock()
 # 分割数の読み込み
 # 100という数字は決め打ち!すばらしい!
 
-if len(sys.argv) == 3 and sys.argv[2] == "-p":
+# 引数パース
+options = set()
+for arg in sys.argv[2:]:
+  options.add(arg)
+
+if "-p" in options:
   TO_COMMUNICATION = False
   print "communication with Proocn Simple Server at localhost"
 else:
   TO_COMMUNICATION = True
   print "communication with sp2lc.salesio-sp.ac.jp/procon.php"
+if "-n" in options:
+  IMAGE_WINDOW = False
+  print "no window"
 
 ppmFile_content = communication.get_problem(sys.argv[1],TO_COMMUNICATION)
 
@@ -251,8 +260,9 @@ newImg = np.hstack(
     for row in np.array(sortedImages)]
 )
 
-plt.imshow(newImg)
-plt.show()#ここまで画像認識
+if IMAGE_WINDOW:
+  plt.imshow(newImg)
+  plt.show()#ここまで画像認識
 
 answer_string = a_star.solve(sortedImages, splitColumns, splitRows, LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE)
 time_end = time.clock()

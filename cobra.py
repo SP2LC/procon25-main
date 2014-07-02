@@ -17,6 +17,7 @@ import communication
 VERSION = "新しいグラフ構造でシンプルなMD(deepcopyしない版)"
 TO_COMMUNICATION = True #Trueのときは自鯖の回答サーバー、FalseのときはlocalhostのProconSimpleServerと通信します。
 IMAGE_WINDOW = True
+NO_POST = False
 
 def split(img, columns, rows):
     images = []
@@ -169,6 +170,9 @@ else:
 if "-n" in options:
   IMAGE_WINDOW = False
   print "no window"
+if "-d" in options:
+  NO_POST = True
+  print "no post"
 
 ppmFile_content = communication.get_problem(sys.argv[1],TO_COMMUNICATION)
 
@@ -269,5 +273,5 @@ time_end = time.clock()
 runtime = str(int(time_end - time_start))
 print "runtime = " + runtime
 print answer_string
-if not(len(sys.argv) == 3 and sys.argv[2] == "-d"):
+if not(NO_POST):
   print (communication.post_answer(answer_string, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))

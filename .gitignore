@@ -1,4 +1,4 @@
 .DS_Store
-profiledata
+profiledata*
 *.pyc
 html/

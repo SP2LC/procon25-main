@@ -164,8 +164,8 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     for key, node in next_nodes.items() : #中身全部取り出すぜー
         added_operation = (key[1],("S%d%d"%key[0],()))
         if node.board != None :
-            heappush(queue, (SELECTON_RATE+EXCHANGE_RATE, node, added_operation, 1))
-
+            h_star = distance_to_goal(distance_table,node.board)
+            heappush(queue, (h_star+SELECTON_RATE+EXCHANGE_RATE, node, added_operation, 1))
 
 
     # (f*(n),(ボード2次元配列, 選択座標), 今まで辿ったノード)

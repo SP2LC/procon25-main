@@ -13,6 +13,7 @@ from StringIO import StringIO
 import time
 import a_star
 import communication
+import heapq
 
 VERSION = "新しいグラフ構造でシンプルなMD(deepcopyしない版)"
 TO_COMMUNICATION = True #Trueのときは自鯖の回答サーバー、FalseのときはlocalhostのProconSimpleServerと通信します。
@@ -100,52 +101,50 @@ def getNeighbours(x, y, array):
 def average(xs):
     return sum(xs) / len(xs)
 
+def addpos(a, b):
+  return (a[0] + b[0], a[1] + b[1])
 
-# TODO 2方向から攻める
-# 水平に動いた方が向く画像とそうでない画像を見極めて，移動を偏らせる?
+# 画像を並び替える
 def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, startList, array):
-    values = createArray(splitColumns, splitRows)
-    width = len(array)
-    height = len(array[0])
-    # 左から，右から，上から，下から
-    tables = [resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight]
-    queue = deque([])
-    for pos, img, value in startList:
-      array[pos[0]][pos[1]] = img
-      values[pos[0]][pos[1]] = value
-      queue.append(pos)
-    while len(queue) != 0:
-      (x, y) = queue.popleft()
-      thisImg = array[x][y]
-      neighbours = getNeighbours(x, y, array)
-      neighboursPosX = [x - 1, x + 1, x, x]
-      neighboursPosY = [y, y, y - 1, y + 1]
-      for i, neighbour in enumerate(neighbours):
-        if neighbour != -1:# and neighbour == None:
-          nextNeighbours = getNeighbours(neighboursPosX[i], neighboursPosY[i], array)
-          nextNeighboursPosX = map(lambda a: a + neighboursPosX[i], [-1, 1, 0, 0])
-          nextNeighboursPosY = map(lambda a: a + neighboursPosY[i], [0, 0, -1, 1])
-          newImgs = []
-          for j, img in enumerate(nextNeighbours):
-            if img != -1 and img != None:
-              newImg = tables[j][img][0]
-              newImgs.append((values[nextNeighboursPosX[j]][nextNeighboursPosY[j]], newImg))
-          if newImgs != []:
-            print "-----"
-            print newImgs
-            #array[neighboursPosX[i]][neighboursPosY[i]] = min(newImgs, key=lambda a: a[1])[0]
-            nextImg = min(newImgs, key=lambda a: a[1][1])
-            #newValue = average(map(lambda a: a[0], newImgs)) + nextImg[1][1]
-            #newValue = nextImg[0] + nextImg[1][1]
-            newValue = nextImg[0] # やっつけ!結局一番角らしいやつを採用してるだけ!
-            if array[neighboursPosX[i]][neighboursPosY[i]] == None or values[neighboursPosX[i]][neighboursPosY[i]] > newValue:
-              if values[neighboursPosX[i]][neighboursPosY[i]] > newValue:
-                print "rewrite %s to %s" % (values[neighboursPosX[i]][neighboursPosY[i]], newValue)
-              array[neighboursPosX[i]][neighboursPosY[i]] = nextImg[1][0]
-              values[neighboursPosX[i]][neighboursPosY[i]] = newValue
-              queue.append((neighboursPosX[i], neighboursPosY[i]))
-    print "values-----------"
-    print(values)
+  tables = [(resultAToBWidth, (1, 0)), (resultBToAWidth, (-1, 0)), (resultAToBHeight, (0, 1)), (resultBToAHeight, (0, -1))]
+  queue = []
+  # (類似度, 注目している画像, 現在座標)
+  heapq.heappush(queue, (0.0, (0, 0), (0, 0)))
+  used = set()  # 使用した画像
+  imgs = {}
+  while len(queue) != 0:
+    # 一番類似しているものから取り出す
+    value, img, pos = heapq.heappop(queue)
+    # すでに使った画像は使わない
+    if img in used:
+      continue
+    # usedに追加
+    used.add(img)
+    print (value, img, pos)
+    imgs[pos] = img
+    # 隣をqueueに入れる
+    for table, direction in tables:
+      heapq.heappush(queue, (table[img][0][1], table[img][0][0], addpos(pos, direction)))
+  # 座標をシフトする
+  print imgs
+  minX = min(imgs.keys(), key=lambda a: a[0])[0]
+  minY = min(imgs.keys(), key=lambda a: a[1])[1]
+  print "minX=%d, minY=%d" % (minX, minY)
+  out = [] # はみ出し画像
+  for k, v in imgs.items():
+    x = k[0] - minX
+    y = k[1] - minY
+    if x >= len(array[0]) or y >= len(array):
+      # はみ出し
+      out.append(v)
+    else:
+      array[x][y] = v
+  # はみ出している画像は適当に欠けているところに入れる
+  for i in range(len(array[0])):
+    for j in range(len(array)):
+      if array[i][j] == None:
+        array[i][j] = out.pop()
+  return array
 
 # MARK: main
 

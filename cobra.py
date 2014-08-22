@@ -141,8 +141,8 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
     else:
       array[x][y] = v
   # はみ出している画像は適当に欠けているところに入れる
-  for i in range(len(array[0])):
-    for j in range(len(array)):
+  for i in range(len(array)):
+    for j in range(len(array[0])):
       if array[i][j] == None:
         array[i][j] = out.pop()
   return array

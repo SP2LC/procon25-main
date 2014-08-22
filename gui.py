@@ -32,8 +32,8 @@ class ImageViewer(Tk.Frame):
 
     self.img_width = splitImages[0][0].shape[1]
     self.img_height = splitImages[0][0].shape[0]
-    self.width = len(splitImages[0]) * self.img_width
-    self.height = len(splitImages) * self.img_height
+    self.width = len(splitImages) * self.img_width
+    self.height = len(splitImages[0]) * self.img_height
     self.master.title("Image")
 
     self.canvas = Tk.Canvas(self, width=self.width, height=self.height)
@@ -60,14 +60,14 @@ class ImageViewer(Tk.Frame):
 
   def reset(self):
     print "reset!"
-    for i in range(len(self.images[0])):
-      for j in range(len(self.images)):
+    for i in range(len(self.images)):
+      for j in range(len(self.images[0])):
         self.images[i][j] = self.original_images[i][j]
     self.show_image()
 
   def show_image(self):
-    for i in range(len(self.images[0])):
-      for j in range(len(self.images)):
+    for i in range(len(self.images)):
+      for j in range(len(self.images[0])):
         # PhotoImageオブジェクトが使われる関数を抜けると画像が消える?
         # なのでインスタンス変数に保存する
         new_i, new_j = self.images[i][j]
@@ -124,14 +124,14 @@ class ImageViewer(Tk.Frame):
     print "shift left!"
     # 最初の列を保存
     first_column = []
-    for j in range(len(self.images)):
+    for j in range(len(self.images[0])):
       first_column.append(self.images[0][j])
     # 2列目以降をシフト
-    for i in range(1, len(self.images[0])):
-      for j in range(len(self.images)):
+    for i in range(1, len(self.images)):
+      for j in range(len(self.images[0])):
         self.images[i - 1][j] = self.images[i][j]
     # 最後の列をセット
-    for j in range(len(self.images)):
+    for j in range(len(self.images[0])):
       self.images[len(self.images[0]) - 1][j] = first_column[j]
     self.show_image()
 

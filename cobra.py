@@ -14,6 +14,7 @@ import time
 import a_star
 import communication
 import heapq
+import gui
 
 VERSION = "新しいグラフ構造でシンプルなMD(deepcopyしない版)"
 TO_COMMUNICATION = True #Trueのときは自鯖の回答サーバー、FalseのときはlocalhostのProconSimpleServerと通信します。
@@ -258,14 +259,18 @@ startList = [
 sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, startList, sortedImages)
 print sortedImages
 
-newImg = np.hstack(
-  [np.vstack([splitImages[a[0]][a[1]] for a in row])
-    for row in np.array(sortedImages)]
-)
+def showArray(sortedImages, splitImages):
+  newImg = np.hstack(
+    [np.vstack([splitImages[a[0]][a[1]] for a in row])
+      for row in np.array(sortedImages)]
+  )
+  if IMAGE_WINDOW:
+    plt.imshow(newImg)
+    plt.show()
 
-if IMAGE_WINDOW:
-  plt.imshow(newImg)
-  plt.show()#ここまで画像認識
+#showArray(sortedImages, splitImages)
+gui.show(sortedImages, splitImages)
+#ここまで画像認識
 
 answer_string = a_star.solve(sortedImages, splitColumns, splitRows, LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE)
 time_end = time.clock()

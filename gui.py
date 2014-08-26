@@ -4,6 +4,8 @@ import Image, ImageTk
 import numpy as np
 import copy
 
+MAX_IMG_SIZE = 640
+
 NORMAL = 0
 SELECTED = 1
 
@@ -136,6 +138,26 @@ class ImageViewer(Tk.Frame):
     self.show_image()
 
 def show(images, splitImages):
+  single_w = splitImages[0][0].shape[1]
+  single_h = splitImages[0][0].shape[0]
+  width = single_w * len(splitImages)
+  height = single_h * len(splitImages[0])
+  if width > MAX_IMG_SIZE:
+    ratio = float(MAX_IMG_SIZE) / width
+    splitImages = shrink(splitImages, ratio)
+  if height > MAX_IMG_SIZE:
+    ratio = float(MAX_IMG_SIZE) / height 
+    splitImages = shrink(splitImages, ratio)
   iv = ImageViewer(images, splitImages)
   iv.mainloop()
   return iv.images
+
+def shrink(images_big, ratio):
+  print ratio
+  images = copy.deepcopy(images_big)
+  for i in range(len(images)):
+    for j in range(len(images[0])):
+      pilimg = Image.fromarray(images[i][j])
+      pilimg = pilimg.resize((int(pilimg.size[0] * ratio), int(pilimg.size[1] * ratio)))
+      images[i][j] = np.asarray(pilimg)
+  return images

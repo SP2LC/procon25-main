@@ -7,7 +7,8 @@ import copy
 MAX_IMG_SIZE = 640
 
 NORMAL = 0
-SELECTED = 1
+SELECTING = 1
+SELECTED = 2
 
 # 与えられたimagesを破壊的に変更するらしい
 
@@ -20,6 +21,7 @@ class ImageViewer(Tk.Frame):
 
     self.state = NORMAL
     self.selected = None
+    self.selected_wh = None
 
     self.image_ids = []
     self.tk_images = []
@@ -42,6 +44,7 @@ class ImageViewer(Tk.Frame):
     self.canvas.pack()
     self.mouseover_img = None
     self.canvas.bind("<Motion>", self.motion)
+    self.canvas.bind("<ButtonRelease-1>", self.release)
 
     self.ok_button = Tk.Button(self, text="OK", command=self.ok)
     self.ok_button.pack()
@@ -51,6 +54,9 @@ class ImageViewer(Tk.Frame):
 
     self.left_button = Tk.Button(self, text="Shift Left", command=self.shift_left)
     self.left_button.pack()
+
+    self.up_button = Tk.Button(self, text="Shift Up", command=self.shift_up)
+    self.up_button.pack()
     
     self.pack()
 
@@ -79,7 +85,7 @@ class ImageViewer(Tk.Frame):
         y = j * self.img_height
         # anchor="nw"を指定しないと画像がずれる。位置を北西(左上)に合わせるという意味。
         self.image_ids[i][j] = self.canvas.create_image(x, y, image=self.tk_images[i][j], anchor="nw")
-        self.canvas.tag_bind(self.image_ids[i][j], "<1>", self.onclick(i, j))
+        self.canvas.tag_bind(self.image_ids[i][j], "<ButtonPress-1>", self.onclick(i, j))
 
   def motion(self, event):
     i = event.x / self.img_width
@@ -87,34 +93,70 @@ class ImageViewer(Tk.Frame):
     if not self.mouseover_img != (i, j):
       return
     self.mouseover_img = (i, j)
-    self.canvas.delete("mouseover")
-    x1 = i * self.img_width
-    y1 = j * self.img_height
-    x2 = x1 + self.img_width
-    y2 = y1 + self.img_height
-    cx = self.canvas.canvasx
-    cy = self.canvas.canvasy
-    self.canvas.create_rectangle(x1, y1, x2, y2, width=2.0, outline="blue", tags="mouseover")
+    if self.state == SELECTING:
+      self.canvas.delete("selection")
+      if i >= self.selected[0]:
+        x1 = self.selected[0] * self.img_width
+        x2 = (i + 1) * self.img_width
+      else:
+        x1 = (self.selected[0] + 1) * self.img_width
+        x2 = i * self.img_width
+      if j >= self.selected[1]:
+        y1 = self.selected[1] * self.img_height
+        y2 = (j + 1) * self.img_height
+      else:
+        y1 = (self.selected[1] + 1) * self.img_height
+        y2 = j * self.img_height
+      cx = self.canvas.canvasx
+      cy = self.canvas.canvasy
+      self.canvas.create_rectangle(x1, y1, x2, y2, width=2.0, outline="red", tags="selection")
+    else:
+      self.canvas.delete("mouseover")
+      x1 = i * self.img_width
+      y1 = j * self.img_height
+      x2 = x1 + self.img_width
+      y2 = y1 + self.img_height
+      cx = self.canvas.canvasx
+      cy = self.canvas.canvasy
+      self.canvas.create_rectangle(x1, y1, x2, y2, width=2.0, outline="blue", tags="mouseover")
 
   def onclick(self, i, j):
     def func(event):
       if self.state == NORMAL:
         print "%d %d" % (i, j)
-        x1 = i * self.img_width
-        y1 = j * self.img_height
-        x2 = x1 + self.img_width
-        y2 = y1 + self.img_height
-        cx = self.canvas.canvasx
-        cy = self.canvas.canvasy
-        self.canvas.create_rectangle(x1, y1, x2, y2, width=2.0, outline="red", tags="selection")
         self.selected = (i, j)
-        self.state = SELECTED
+        self.state = SELECTING
       elif self.state == SELECTED:
         print "exchange %s to %s" % (self.selected, (i, j))
         self.state = NORMAL
         self.canvas.delete("selection")
         self.exchange(self.selected, (i, j))
     return func
+
+  def release(self, event):
+    i = event.x / self.img_width
+    j = event.y / self.img_height
+    if self.state == SELECTING:
+      # 右上がselectedになるようにする
+      if i < self.selected[0]:
+        # 左にドラッグしていたら
+        tmp = self.selected[0]
+        self.selected = (i, self.selected[1])
+        i = tmp
+      if j < self.selected[1]:
+        # 上にドラッグしていたら
+        tmp = self.selected[1]
+        self.selected = (self.selected[0], j)
+        j = tmp
+      self.selected_wh = (i - self.selected[0] + 1, j - self.selected[1] + 1)
+      print "release %s %s" % (self.selected, self.selected_wh)
+      self.canvas.delete("selection")
+      x1 = self.selected[0] * self.img_width
+      x2 = x1 + self.selected_wh[0] * self.img_width
+      y1 = self.selected[1] * self.img_height
+      y2 = y1 + self.selected_wh[1] * self.img_height
+      self.canvas.create_rectangle(x1, y1, x2, y2, width=2.0, outline="red", tags="selection")
+      self.state = SELECTED
 
   def exchange(self, a, b):
     tmp = self.images[a[0]][a[1]]
@@ -134,7 +176,22 @@ class ImageViewer(Tk.Frame):
         self.images[i - 1][j] = self.images[i][j]
     # 最後の列をセット
     for j in range(len(self.images[0])):
-      self.images[len(self.images[0]) - 1][j] = first_column[j]
+      self.images[len(self.images) - 1][j] = first_column[j]
+    self.show_image()
+
+  def shift_up(self):
+    print "shift up!"
+    # 最初の行を保存
+    first_row = []
+    for i in range(len(self.images)):
+      first_row.append(self.images[i][0])
+    # 2行目以降をシフト
+    for i in range(len(self.images)):
+      for j in range(1, len(self.images[0])):
+        self.images[i][j - 1] = self.images[i][j]
+    # 最後の行をセット
+    for i in range(len(self.images)):
+      self.images[i][len(self.images[0]) - 1] = first_row[i]
     self.show_image()
 
 def show(images, splitImages):

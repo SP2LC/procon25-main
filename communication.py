@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import requests
+from requests.auth import HTTPDigestAuth
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from PIL import Image
@@ -8,9 +9,12 @@ import sys
 import re
 import math
 
+DIGEST_USER = "sp2lc"
+DIGEST_PASS = "********"
+
 def get_problem(problem_id,to_communication):
 	if to_communication:
-		r = requests.get('http://sp2lc.salesio-sp.ac.jp/procon.php',params = {'probID' : problem_id})
+		r = requests.get('http://sp2lc.salesio-sp.ac.jp/procon.php',params = {'probID' : problem_id}, auth=HTTPDigestAuth(DIGEST_USER, DIGEST_PASS))
 		if r.text == "error" :
 			print "server error"
 			exit()
@@ -22,7 +26,7 @@ def get_problem(problem_id,to_communication):
 
 def post_answer(answer_string, time, version_string, problem_id,to_communication):
 	if to_communication:
-		r = requests.post('http://sp2lc.salesio-sp.ac.jp/procon.php',data = {'answer_string' : answer_string , 'time' : time , 'version' : version_string, 'probID' : problem_id})
+		r = requests.post('http://sp2lc.salesio-sp.ac.jp/procon.php',data = {'answer_string' : answer_string , 'time' : time , 'version' : version_string, 'probID' : problem_id}, auth=HTTPDigestAuth(DIGEST_USER, DIGEST_PASS))
 		if r.text == "error" :
 			print "server error"
 			exit()

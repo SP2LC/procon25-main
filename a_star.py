@@ -162,7 +162,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
     next_nodes = Node(problem,(0,0)).get_next_nodes() #problemに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
     for key, node in next_nodes.items() : #中身全部取り出すぜー
-        added_operation = (key[1],("S%d%d"%key[0],()))
+        added_operation = (key[1],("S%X%X"%key[0],()))
         if node.board != None :
             h_star = distance_to_goal(distance_table,node.board)
             heappush(queue, (h_star+SELECTON_RATE+EXCHANGE_RATE, node, added_operation, 1))
@@ -192,7 +192,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
             if key[0] != looking_node.selection :
                 select = True
                 cost += SELECTON_RATE
-                added_operation = (key[1],("S%d%d"%key[0],operations))
+                added_operation = (key[1],("S%X%X"%key[0],operations))
             else:
                 added_operation = (key[1],operations)
 

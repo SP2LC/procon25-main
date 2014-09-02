@@ -17,7 +17,7 @@ import heapq
 import gui
 
 VERSION = "新しいグラフ構造でシンプルなMD(deepcopyしない版)"
-TO_COMMUNICATION = True #Trueのときは自鯖の回答サーバー、FalseのときはlocalhostのProconSimpleServerと通信します。
+TO_COMMUNICATION = "sp2lc" #sp2lcのときは自鯖の回答サーバー、proconのときはlocalhostのProconSimpleServer、practiceの時は沖縄高専の練習場と通信します。
 IMAGE_WINDOW = True
 NO_POST = False
 
@@ -176,10 +176,13 @@ for arg in sys.argv[2:]:
   options.add(arg)
 
 if "-p" in options:
-  TO_COMMUNICATION = False
+  TO_COMMUNICATION = "procon"
   print "communication with Proocn Simple Server at localhost"
+elif "-r" in options:
+  TO_COMMUNICATION = "practice"
+  print "communication with procon2014-practice.oknct-ict.org"
 else:
-  TO_COMMUNICATION = True
+  TO_COMMUNICATION = "sp2lc"
   print "communication with sp2lc.salesio-sp.ac.jp/procon.php"
 if "-n" in options:
   IMAGE_WINDOW = False

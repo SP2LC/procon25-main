@@ -14,6 +14,7 @@ import time
 import a_star
 import communication
 import heapq
+import gui
 
 VERSION = "新しいグラフ構造でシンプルなMD(deepcopyしない版)"
 TO_COMMUNICATION = "sp2lc" #sp2lcのときは自鯖の回答サーバー、proconのときはlocalhostのProconSimpleServer、practiceの時は沖縄高専の練習場と通信します。
@@ -110,36 +111,50 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
   queue = []
   # (類似度, 注目している画像, 現在座標)
   heapq.heappush(queue, (0.0, (0, 0), (0, 0)))
-  used = set()  # 使用した画像
+  used = set((0, 0))  # 使用した画像
   imgs = {}
+  imgs[(0, 0)] = (0, 0)
   while len(queue) != 0:
     # 一番類似しているものから取り出す
     value, img, pos = heapq.heappop(queue)
     # すでに使った画像は使わない
     if img in used:
       continue
+    # 終了条件
+    if len(imgs) == len(array) * len(array[0]):
+      print "finish!"
+      break
     # usedに追加
     used.add(img)
     print (value, img, pos)
     imgs[pos] = img
     # 隣をqueueに入れる
     for table, direction in tables:
-      heapq.heappush(queue, (table[img][0][1], table[img][0][0], addpos(pos, direction)))
+      for new_img in table[img]:
+        heapq.heappush(queue, (new_img[1], new_img[0], addpos(pos, direction)))
   # 座標をシフトする
   print imgs
   minX = min(imgs.keys(), key=lambda a: a[0])[0]
   minY = min(imgs.keys(), key=lambda a: a[1])[1]
   print "minX=%d, minY=%d" % (minX, minY)
-  out = [] # はみ出し画像
+  #out = [] # はみ出し画像
+  all_imgs = set([(x, y) for x in range(len(array)) for y in range(len(array[0]))])
+  used_imgs = set()
   for k, v in imgs.items():
     x = k[0] - minX
     y = k[1] - minY
-    if x >= len(array[0]) or y >= len(array):
+    if x >= len(array) or y >= len(array[0]):
       # はみ出し
-      out.append(v)
+      #out.append(v)
+      print "out"
+      print "%s %s" % ((x, y), v)
     else:
       array[x][y] = v
+      used_imgs.add(v)
+  print array
   # はみ出している画像は適当に欠けているところに入れる
+  out = all_imgs - used_imgs
+  print out
   for i in range(len(array)):
     for j in range(len(array[0])):
       if array[i][j] == None:
@@ -261,14 +276,18 @@ startList = [
 sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, startList, sortedImages)
 print sortedImages
 
-newImg = np.hstack(
-  [np.vstack([splitImages[a[0]][a[1]] for a in row])
-    for row in np.array(sortedImages)]
-)
+def showArray(sortedImages, splitImages):
+  newImg = np.hstack(
+    [np.vstack([splitImages[a[0]][a[1]] for a in row])
+      for row in np.array(sortedImages)]
+  )
+  if IMAGE_WINDOW:
+    plt.imshow(newImg)
+    plt.show()
 
-if IMAGE_WINDOW:
-  plt.imshow(newImg)
-  plt.show()#ここまで画像認識
+#showArray(sortedImages, splitImages)
+gui.show(sortedImages, splitImages)
+#ここまで画像認識
 
 answer_string = a_star.solve(sortedImages, splitColumns, splitRows, LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE)
 time_end = time.clock()

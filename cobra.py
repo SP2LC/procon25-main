@@ -106,20 +106,34 @@ def addpos(a, b):
   return (a[0] + b[0], a[1] + b[1])
 
 # 画像を並び替える
-def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, startList, array):
+def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, array, correctImages={}):
   tables = [(resultAToBWidth, (1, 0)), (resultBToAWidth, (-1, 0)), (resultAToBHeight, (0, 1)), (resultBToAHeight, (0, -1))]
   queue = []
-  # (類似度, 注目している画像, 現在座標)
-  heapq.heappush(queue, (0.0, (0, 0), (0, 0)))
-  used = set((0, 0))  # 使用した画像
   imgs = {}
-  imgs[(0, 0)] = (0, 0)
+  if len(correctImages) == 0:
+    # (類似度, 注目している画像, 現在座標)
+    heapq.heappush(queue, (0.0, (0, 0), (0, 0)))
+    used = set((0, 0))  # 使用した画像
+  else:
+    used = set()
+    #imgs[(0, 0)] = (0, 0)
+    #for pos, img, value in startList:
+    a = 0
+    for pos, img in correctImages.items():
+      imgs[pos] = img
+      used.add(img)
+      for table, direction in tables:
+        for new_img in table[img]:
+          heapq.heappush(queue, (new_img[1], new_img[0], addpos(pos, direction)))
+      a += 1
   while len(queue) != 0:
     # 一番類似しているものから取り出す
     value, img, pos = heapq.heappop(queue)
     # すでに使った画像は使わない
     if img in used:
+      #print "uszew"
       continue
+    print img
     # 終了条件
     if len(imgs) == len(array) * len(array[0]):
       print "finish!"
@@ -267,13 +281,13 @@ print "右上はこいつだ!"
 print rightTop[0]
 
 sortedImages = createArray(splitColumns, splitRows)
-startList = [
-  ((splitColumns - 1, splitRows - 1), rightBottom[0][0], rightBottom[0][1]),
-  ((splitColumns - 1, 0), rightTop[0][0], rightTop[0][1]),
-  ((0, splitRows - 1), leftBottom[0][0], leftBottom[0][1]),
-  ((0, 0), leftTop[0][0], leftTop[0][1])]
+#startList = [
+#  ((splitColumns - 1, splitRows - 1), rightBottom[0][0], rightBottom[0][1]),
+#  ((splitColumns - 1, 0), rightTop[0][0], rightTop[0][1]),
+#  ((0, splitRows - 1), leftBottom[0][0], leftBottom[0][1]),
+#  ((0, 0), leftTop[0][0], leftTop[0][1])]
 
-sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, startList, sortedImages)
+sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, sortedImages)
 print sortedImages
 
 def showArray(sortedImages, splitImages):
@@ -285,8 +299,11 @@ def showArray(sortedImages, splitImages):
     plt.imshow(newImg)
     plt.show()
 
+def retry(array, correctImages):
+  sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, array, correctImages=correctImages)
+
 #showArray(sortedImages, splitImages)
-gui.show(sortedImages, splitImages)
+gui.show(sortedImages, splitImages, retry=retry)
 #ここまで画像認識
 
 answer_string = a_star.solve(sortedImages, splitColumns, splitRows, LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE)

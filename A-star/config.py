@@ -1,1 +1,1 @@
-master = "http://localhost:8000/"
+master = "192.168.10.12"

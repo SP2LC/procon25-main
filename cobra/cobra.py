@@ -21,6 +21,8 @@ import cgi
 import SimpleHTTPServer
 import SocketServer
 import logging
+import socket
+import config
 
 
 VERSION = "プロコン本番用"
@@ -351,8 +353,10 @@ def do_Image_recognition():
 start = time.time()
 
 answer = do_Image_recognition()
-host = 'localhost'
-port = 8000
+
+host = socket.gethostbyname(socket.gethostname())
+print "location is %s" % host
+port = config.port
 httpd = SocketServer.TCPServer((host, port), Procon_Cobra_Handler)
 
 print('serving at port', port)

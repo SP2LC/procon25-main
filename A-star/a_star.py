@@ -4,6 +4,7 @@ from copy import deepcopy,copy
 import requests
 from requests.auth import HTTPDigestAuth
 import json
+import sys
 import communication
 import config
 
@@ -219,12 +220,17 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
                 if new_selection_count <= LIMIT_SELECTION:
                   heappush(queue, (f_star + cost + EXCHANGE_RATE, node, added_operation, new_selection_count))
 
-#main 
+#main
+master = "" 
+if len(sys.argv) == 3:
+  master = sys.argv[2]
+else:
+  master = config.master
 
-para = communication.get_problem()
+para = communication.get_problem(master)
 ans_str = solve(para['answer'], para['columns'], para['rows'], para['lim_select'], para['selection_rate'], para['exchange_rate'])
 print ans_str
-r = requests.post(config.master, data = {'answer' : ans_str , 'cost' : ALL_COST})
+r = requests.post("http://%s:8000/" % master, data = {'answer' : ans_str , 'cost' : ALL_COST})
 print r.text
 
 

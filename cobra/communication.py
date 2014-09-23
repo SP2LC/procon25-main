@@ -8,6 +8,7 @@ from StringIO import StringIO
 import sys
 import re
 import math
+import config
 
 DIGEST_USER = "sp2lc"
 DIGEST_PASS = "********"
@@ -23,7 +24,7 @@ def get_problem(problem_id,to_communication):
 			exit()
 		return r.content
 	elif to_communication == "procon":
-		r = requests.get("http://192.168.11.220/problem/prob%02d.ppm" % int(problem_id))
+		r = requests.get("http://%s/problem/prob%02d.ppm" % (config.serverIP, int(problem_id)))
 		return r.content
         else:
                 # practice
@@ -42,7 +43,7 @@ def post_answer(answer_string, time, version_string, problem_id,to_communication
 		print r.text
 		return r.text
 	elif to_communication == "procon":
-		r = requests.post('http://192.168.11.220/SubmitAnswer',data = {'playerid' : "1", 'problemid' : problem_id, 'answer' : answer_string})
+		r = requests.post('http://%s/SubmitAnswer' % config.serverIP,data = {'playerid' : config.token, 'problemid' : problem_id, 'answer' : answer_string})
 		print r
 		return r.text
         else:

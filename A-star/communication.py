@@ -15,21 +15,26 @@ DIGEST_PASS = "********"
 PRACTICE_USER = "sp2lc"
 PRACTICE_PASS = "********"
 
-def get_problem(problem_id,to_communication):
-	if to_communication == "sp2lc":
-		r = requests.get('http://sp2lc.salesio-sp.ac.jp/procon.php',params = {'probID' : problem_id}, auth=HTTPDigestAuth(DIGEST_USER, DIGEST_PASS))
-		if r.text == "error" :
-			print "server error"
-			exit()
-		return r.content
-	elif to_communication == "procon":
-		r = requests.get("http://192.168.11.220/problem/prob%02d.ppm" % int(problem_id))
-		return r.content
-        else:
-                # practice
-                r = requests.get("http://procon2014-practice.oknct-ict.org/problem/ppm/%d" % int(problem_id))
-                return r.content
+def make_problem(w, h):
+    arr = []
+    for i in range(w):
+        column = []
+        for j in range(h):
+            column.append((i, j))
+        arr.append(column)
+    return arr
 
+def get_problem():
+	r = requests.get("http://localhost:8000")
+	print r.text
+	if not(r.json() == None):
+		para = r.json()
+		sortedImages = make_problem(para['columns'],para['rows'])
+		for i in range(len(para['answer'][0])):
+			for j in range(len(para['answer'][1])):
+				sortedImages[i][j] = (para['answer'][i][j][0],para['answer'][i][j][1])
+
+	return {'answer' : sortedImages , 'columns' : para['columns'], 'rows' : para['rows'], 'lim_select' : para['lim_select'], 'selection_rate' : para['selection_rate'], 'exchange_rate' : para['exchange_rate']}
 
 def post_answer(answer_string, time, version_string, problem_id,to_communication):
 	if to_communication == "sp2lc":

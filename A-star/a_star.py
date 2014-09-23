@@ -4,6 +4,7 @@ from copy import deepcopy,copy
 import requests
 from requests.auth import HTTPDigestAuth
 import json
+import communication
 
 # グローバル変数の宣言
 LIMIT_SELECTION = 0
@@ -219,11 +220,11 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
 #main 
 
-r = requests.get("localhost:8000" ,timeout = 9999999999999999999999)
-if not(r.json() == None):
-    para = r.json()
-    ans_str = solve(para['answer'], para['columns'], para['rows'], para['lim_select'], para['selection_rate'], para['exchange_rate'])
-    r = requests.post("localhost:8000",data = {'answer' : answer , 'cost' : ALL_COST})
+para = communication.get_problem()
+ans_str = solve(para['answer'], para['columns'], para['rows'], para['lim_select'], para['selection_rate'], para['exchange_rate'])
+print ans_str
+r = requests.post("http://localhost:8000",data = {'answer' : ans_str , 'cost' : ALL_COST})
+print r.text
 
 
 

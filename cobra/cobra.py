@@ -20,44 +20,59 @@ import json
 import cgi
 import SimpleHTTPServer
 import SocketServer
+import logging
 
 
-
-VERSION = "新しいグラフ構造でシンプルなMD(deepcopyしない版)"
+VERSION = "プロコン本番用"
 TO_COMMUNICATION = "sp2lc" #sp2lcのときは自鯖の回答サーバー、proconのときはlocalhostのProconSimpleServer、practiceの時は沖縄高専の練習場と通信します。
 IMAGE_WINDOW = True
 NO_POST = False
 
+LIMIT_SELECTION = 0
+SELECTON_RATE = 0
+EXCHANGE_RATE = 0
+splitColumns = 0
+splitRows = 0
+answer = []
+start = 0
+best_cost = 99999999999999
+
 class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
-  goodest_cost = 9999999999999999999999999999999
-  answer = []
-  columns = 0
-  rows = 0
-  lim_select = 0
-  selection_rate = 0
-  exchange_rate = 0
+  def __init__(self,request, client_address, server):
+    SimpleHTTPServer.SimpleHTTPRequestHandler.__init__(self,request, client_address, server)
+    self.answer = []
+    self.columns = 0
+    self.rows = 0
+    self.lim_select = 0
+    self.selection_rate = 0
+    self.exchange_rate = 0
 
   def do_POST(self):
-    form = cgi.FieldStorage(
-      fp=self.rfile, 
-      headers=self.headers,
-      environ={'REQUEST_METHOD':'POST', 'CONTENT_TYPE':self.headers['Content-Type'],})
-
-    cost = form['cost']
-    if cost < goodest_cost:
-      goodest_cost = cost
+    global best_cost
+    form = cgi.FieldStorage(fp=self.rfile,headers=self.headers,environ={'REQUEST_METHOD':'POST','CONTENT_TYPE':self.headers['Content-Type'],})
+    runtime = int(time.time() - start)
+    cost = int(form['cost'].value) + (runtime * 100)
+    ans_str = form['answer'].value
+    print 'cost is '+ str(cost)
+    print 'ans is \n'+ans_str
+    print best_cost
+    if cost < best_cost:
+      best_cost = cost
       body = "send this answer!"
       if not(NO_POST):
-        print (communication.post_answer(form['answer'], runtime, VERSION, sys.argv[1],TO_COMMUNICATION))
+        print (communication.post_answer(form['answer'].value, 0, VERSION, sys.argv[1],TO_COMMUNICATION))
       self.send_response(200)
       self.wfile.write(body)
     else:
       body = "not send this answer..."
       self.send_response(200)
+      self.send_header('Content-type', 'text/html; charset=utf-8')
+      self.send_header('Content-length', len(body))
+      self.end_headers()
       self.wfile.write(body)
 
   def do_GET(self):
-    data = {'answer' : answer, 'columns': columns , 'rows' : row , 'lim_select' : lim_select , 'selection_rate' : selection_rate, 'exchange_rate' : exchange_rate}
+    data = {'answer' : answer, 'columns': splitColumns , 'rows' : splitRows , 'lim_select' : LIMIT_SELECTION , 'selection_rate' : SELECTON_RATE, 'exchange_rate' : EXCHANGE_RATE}
     body = json.dumps(data)
     self.send_response(200)
     self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -244,7 +259,8 @@ if "-d" in options:
   NO_POST = True
   print "no post"
 
-def do_Image_recognition(result_queue):
+def do_Image_recognition():
+  global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, splitColumns, splitRows
   ppmFile_content = communication.get_problem(sys.argv[1],TO_COMMUNICATION)
 
   ppmFile = ppmFile_content[:100]
@@ -328,36 +344,19 @@ def do_Image_recognition(result_queue):
     ((0, 0), leftTop[0][0], leftTop[0][1])]
   sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, startList, sortedImages)
   print sortedImages
+  gui.show(sortedImages, splitImages)
   #ここまで画像認識
-  result_queue.put(sortedImages)
-  return 
+  return sortedImages
 
-result_queue = Queue.Queue()
-image_rec_thr = threading.Thread(target=do_Image_recognition, name="Image_recognition", args=[result_queue])
-image_rec_thr.daemon = True
-image_rec_thr.start()
+start = time.time()
 
+answer = do_Image_recognition()
 host = 'localhost'
 port = 8000
 httpd = SocketServer.TCPServer((host, port), Procon_Cobra_Handler)
 
-paras = result_queue.get()
-gui.show(paras, splitImages)
-
-httpd.answer = paras
-httpd.columns = splitColumns
-httpd.rows = splitRows
-httpd.lim_select = LIMIT_SELECTION
-httpd.selection_rate = SELECTON_RATE
-httpd.exchange_rate = EXCHANGE_RATE
-
 print('serving at port', port)
 httpd.serve_forever()
 
-
-
-
-answer_string = a_star.solve(sortedImages, splitColumns, splitRows, LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE)
-time_end = time.clock()
 runtime = str(int(time_end - time_start))
 print "runtime = " + runtime

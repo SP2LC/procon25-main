@@ -5,6 +5,7 @@ import requests
 from requests.auth import HTTPDigestAuth
 import json
 import communication
+import config
 
 # グローバル変数の宣言
 LIMIT_SELECTION = 0
@@ -223,7 +224,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 para = communication.get_problem()
 ans_str = solve(para['answer'], para['columns'], para['rows'], para['lim_select'], para['selection_rate'], para['exchange_rate'])
 print ans_str
-r = requests.post("http://localhost:8000",data = {'answer' : ans_str , 'cost' : ALL_COST})
+r = requests.post(config.master, data = {'answer' : ans_str , 'cost' : ALL_COST})
 print r.text
 
 

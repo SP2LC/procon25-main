@@ -8,6 +8,7 @@ from StringIO import StringIO
 import sys
 import re
 import math
+import config
 
 DIGEST_USER = "sp2lc"
 DIGEST_PASS = "********"
@@ -25,7 +26,7 @@ def make_problem(w, h):
     return arr
 
 def get_problem():
-	r = requests.get("http://localhost:8000")
+	r = requests.get(config.master, timeout=10000000)
 	print r.text
 	if not(r.json() == None):
 		para = r.json()

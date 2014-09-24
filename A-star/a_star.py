@@ -7,6 +7,7 @@ import json
 import sys
 import communication
 import config
+import time
 
 # グローバル変数の宣言
 LIMIT_SELECTION = 0
@@ -181,6 +182,10 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
     min_distance = 9999999
 
+    counter = 0 # 処理速度計測用
+    count_start = time.time()
+    average_time = None
+
     while  len(queue) != 0: #キューの長さ分くりかえすでー
         dummy, looking_node, operations, selection_count = heappop(queue) #キューの先頭を取り出す
         g_star = caliculate_cost(operations)
@@ -188,7 +193,25 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
             print operations_to_list(operations)
             print "cost=%d" % caliculate_cost(operations)
             ALL_COST = caliculate_cost(operations)
+            if average_time != None:
+              print "%f nodes/s" % average_time
+            else:
+              print "%d nodes were checked" % counter
+              print "%f nodes/s" % (counter / (time.time() - count_start))
             return encode_answer_format(operations_to_list(operations))
+
+        # 処理速度計測
+        counter += 1
+        if counter > 200:
+          # 1000回到達したら
+          count_time = counter / (time.time() - count_start)
+          if average_time == None:
+            average_time = count_time
+          else:
+            average_time = (average_time + count_time) / 2
+          counter = 0
+          count_start = time.time()
+        # 計測終わり
 
         checked_nodes.add(tuplenode(looking_node)) #chacked_nodes集合にチェック済みとして追加
         next_nodes = looking_node.get_next_nodes() #looking_nodeに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加

@@ -245,8 +245,8 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
 #main
 master = "" 
-if len(sys.argv) == 3:
-  master = sys.argv[2]
+if len(sys.argv) == 2:
+  master = sys.argv[1]
 else:
   master = config.master
 

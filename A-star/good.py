@@ -5,6 +5,7 @@ import time
 import communication
 import requests
 import sys
+import config
 
 # グローバル変数の宣言
 LIMIT_SELECTION = 0

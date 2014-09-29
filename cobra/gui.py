@@ -13,11 +13,12 @@ SELECTED = 2
 # 与えられたimagesを破壊的に変更するらしい
 
 class ImageViewer(Tk.Frame):
-  def __init__(self, images, splitImages):
+  def __init__(self, images, splitImages, retry):
     Tk.Frame.__init__(self, None)
     self.images = images
     self.original_images = copy.deepcopy(images)
     self.splitImages = splitImages
+    self.retry_func = retry
 
     self.state = NORMAL
     self.selected = None
@@ -25,14 +26,18 @@ class ImageViewer(Tk.Frame):
 
     self.image_ids = []
     self.tk_images = []
+    self.wrong = []
     for j in range(len(images)):
       column = []
       tk_column = []
+      wrong_column = []
       for i in range(len(images[0])):
         column.append(None)
         tk_column.append(None)
+        wrong_column.append(False)
       self.image_ids.append(column)
       self.tk_images.append(tk_column)
+      self.wrong.append(wrong_column)
 
     self.img_width = splitImages[0][0].shape[1]
     self.img_height = splitImages[0][0].shape[0]
@@ -52,11 +57,23 @@ class ImageViewer(Tk.Frame):
     self.reset_button = Tk.Button(self, text="Reset", command=self.reset)
     self.reset_button.pack()
 
-    self.left_button = Tk.Button(self, text="Shift Left", command=self.shift_left)
-    self.left_button.pack()
+    self.shift_frame = Tk.Frame(self)
+    self.shift_frame.pack()
 
-    self.up_button = Tk.Button(self, text="Shift Up", command=self.shift_up)
-    self.up_button.pack()
+    self.left_button = Tk.Button(self.shift_frame, text="LEFT", command=self.shift_left)
+    self.left_button.grid(column=0, row=1)
+
+    self.up_button = Tk.Button(self.shift_frame, text="UP", command=self.shift_up)
+    self.up_button.grid(column=1, row=0)
+
+    self.right_button = Tk.Button(self.shift_frame, text="RIGHT", command=self.shift_right)
+    self.right_button.grid(column=2, row=1)
+
+    self.down_button = Tk.Button(self.shift_frame, text="DOWN", command=self.shift_down)
+    self.down_button.grid(column=1, row=2)
+
+    self.retry_button = Tk.Button(self, text="Retry", command=self.retry)
+    self.retry_button.pack()
     
     self.pack()
 
@@ -73,6 +90,22 @@ class ImageViewer(Tk.Frame):
         self.images[i][j] = self.original_images[i][j]
     self.show_image()
 
+  def retry(self):
+    print "retry"
+    correct_images = {}
+    for i in range(len(self.images)):
+      for j in range(len(self.images[1])):
+        if not self.wrong[i][j]:
+          correct_images[(i, j)] = self.images[i][j]
+    print "corect img"
+    print correct_images
+    print len(correct_images)
+    self.retry_func(self.images, correct_images)
+    for i in range(len(self.images)):
+      for j in range(len(self.images[1])):
+        self.wrong[i][j] = False
+    self.show_image()
+
   def show_image(self):
     for i in range(len(self.images)):
       for j in range(len(self.images[0])):
@@ -86,6 +119,25 @@ class ImageViewer(Tk.Frame):
         # anchor="nw"を指定しないと画像がずれる。位置を北西(左上)に合わせるという意味。
         self.image_ids[i][j] = self.canvas.create_image(x, y, image=self.tk_images[i][j], anchor="nw")
         self.canvas.tag_bind(self.image_ids[i][j], "<ButtonPress-1>", self.onclick(i, j))
+        self.canvas.tag_bind(self.image_ids[i][j], "<ButtonPress-2>", self.set_wrong(i, j))
+        # wrong imageにマークを付ける
+        #self.canvas.delete("wrong")
+        if self.wrong[i][j]:
+          self.canvas.create_line(x, y, x + self.img_width, y + self.img_height, width=5, fill="red", tags="wrong")
+
+  def set_wrong(self, i, j):
+    # 間違っている画像を指定する
+    # todo 枠を付ける
+    def func(event):
+      if self.wrong[i][j]:
+        self.wrong[i][j] = False
+        print "correct (%d, %d)" % (i, j)
+      else:
+        self.wrong[i][j] = True
+        print "wrong (%d, %d)" % (i, j)
+      pass
+      self.show_image()
+    return func
 
   def motion(self, event):
     i = event.x / self.img_width
@@ -179,6 +231,22 @@ class ImageViewer(Tk.Frame):
       self.images[len(self.images) - 1][j] = first_column[j]
     self.show_image()
 
+  def shift_right(self):
+    print "shift right!"
+    # 最後の列を保存
+    last_column = []
+    width = len(self.images)
+    for j in range(len(self.images[width - 1])):
+      last_column.append(self.images[width - 1][j])
+    #  最初以外の列をシフト
+    for i in range(len(self.images) - 2, -1, -1):
+      for j in range(len(self.images[0])):
+        self.images[i + 1][j] = self.images[i][j]
+    # 最初の列をセット
+    for j in range(len(self.images[0])):
+      self.images[0][j] = last_column[j]
+    self.show_image()
+
   def shift_up(self):
     print "shift up!"
     # 最初の行を保存
@@ -194,7 +262,23 @@ class ImageViewer(Tk.Frame):
       self.images[i][len(self.images[0]) - 1] = first_row[i]
     self.show_image()
 
-def show(images, splitImages):
+  def shift_down(self):
+    print "shift down!"
+    # 最後の行を保存
+    last_row = []
+    height = len(self.images[0])
+    for i in range(len(self.images)):
+      last_row.append(self.images[i][height - 1])
+    # 最後以外の行をシフト
+    for i in range(len(self.images)):
+      for j in range(len(self.images[0]) - 2, -1, -1):
+        self.images[i][j + 1] = self.images[i][j]
+    # 最初の行をセット
+    for i in range(len(self.images)):
+      self.images[i][0] = last_row[i]
+    self.show_image()
+
+def show(images, splitImages, retry=lambda a, b: 0):
   single_w = splitImages[0][0].shape[1]
   single_h = splitImages[0][0].shape[0]
   width = single_w * len(splitImages)
@@ -205,7 +289,7 @@ def show(images, splitImages):
   if height > MAX_IMG_SIZE:
     ratio = float(MAX_IMG_SIZE) / height 
     splitImages = shrink(splitImages, ratio)
-  iv = ImageViewer(images, splitImages)
+  iv = ImageViewer(images, splitImages, retry)
   iv.mainloop()
   return iv.images
 

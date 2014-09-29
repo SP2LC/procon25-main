@@ -176,20 +176,36 @@ def showArray(sortedImages, splitImages):
     plt.show()
 
 # 画像を並び替える
-def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, startList, array):
+def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, array, correctImages={}):
   tables = [(resultAToBWidth, (1, 0)), (resultBToAWidth, (-1, 0)), (resultAToBHeight, (0, 1)), (resultBToAHeight, (0, -1))]
   queue = []
-  # (類似度, 注目している画像, 現在座標)
-  heapq.heappush(queue, (0.0, (0, 0), (0, 0)))
-  used = set((0, 0))  # 使用した画像
   imgs = {}
-  imgs[(0, 0)] = (0, 0)
+  if len(correctImages) == 0:
+    # (類似度, 注目している画像, 現在座標)
+    heapq.heappush(queue, (0.0, (0, 0), (0, 0)))
+    used = set((0, 0))  # 使用した画像
+  else:
+    used = set()
+    #imgs[(0, 0)] = (0, 0)
+    #for pos, img, value in startList:
+    a = 0
+    for pos, img in correctImages.items():
+      imgs[pos] = img
+      used.add(img)
+      for table, direction in tables:
+        #for new_img in table[img]:
+        new_img = table[img][0]
+        if True:
+          heapq.heappush(queue, (new_img[1], new_img[0], addpos(pos, direction)))
+      a += 1
   while len(queue) != 0:
     # 一番類似しているものから取り出す
     value, img, pos = heapq.heappop(queue)
     # すでに使った画像は使わない
     if img in used:
+      #print "uszew"
       continue
+    print img
     # 終了条件
     if len(imgs) == len(array) * len(array[0]):
       print "finish!"
@@ -200,12 +216,19 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
     imgs[pos] = img
     # 隣をqueueに入れる
     for table, direction in tables:
-      for new_img in table[img]:
-        heapq.heappush(queue, (new_img[1], new_img[0], addpos(pos, direction)))
+      #for new_img in table[img]:
+      new_img = table[img][0]
+      new_img1 = table[img][1]
+      if True:
+        heapq.heappush(queue, (new_img[1] - new_img1[1], new_img[0], addpos(pos, direction)))
   # 座標をシフトする
   print imgs
-  minX = min(imgs.keys(), key=lambda a: a[0])[0]
-  minY = min(imgs.keys(), key=lambda a: a[1])[1]
+  if len(correctImages) == 0:
+    minX = min(imgs.keys(), key=lambda a: a[0])[0]
+    minY = min(imgs.keys(), key=lambda a: a[1])[1]
+  else:
+    minX = 0
+    minY = 0
   print "minX=%d, minY=%d" % (minX, minY)
   #out = [] # はみ出し画像
   all_imgs = set([(x, y) for x in range(len(array)) for y in range(len(array[0]))])
@@ -219,8 +242,9 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
       print "out"
       print "%s %s" % ((x, y), v)
     else:
-      array[x][y] = v
-      used_imgs.add(v)
+      if not (x, y) in correctImages:
+        array[x][y] = v
+        used_imgs.add(v)
   print array
   # はみ出している画像は適当に欠けているところに入れる
   out = all_imgs - used_imgs
@@ -230,6 +254,9 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
       if array[i][j] == None:
         array[i][j] = out.pop()
   return array
+
+def retry(array, correctImages):
+  sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, array, correctImages=correctImages)
 
 # MARK: main
 
@@ -264,7 +291,6 @@ if "-d" in options:
 def do_Image_recognition():
   global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, splitColumns, splitRows
   ppmFile_content = communication.get_problem(sys.argv[1],TO_COMMUNICATION)
-
   ppmFile = ppmFile_content[:100]
   splitStrings = re.split("[\t\r\n ]+", ppmFile)
   splitColumns = int(splitStrings[2]) # 横の分割数
@@ -339,14 +365,9 @@ def do_Image_recognition():
   print rightTop[0]
 
   sortedImages = createArray(splitColumns, splitRows)
-  startList = [
-    ((splitColumns - 1, splitRows - 1), rightBottom[0][0], rightBottom[0][1]),
-    ((splitColumns - 1, 0), rightTop[0][0], rightTop[0][1]),
-    ((0, splitRows - 1), leftBottom[0][0], leftBottom[0][1]),
-    ((0, 0), leftTop[0][0], leftTop[0][1])]
-  sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, startList, sortedImages)
+  sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, sortedImages)
   print sortedImages
-  gui.show(sortedImages, splitImages)
+  gui.show(sortedImages, splitImages, retry=retry)
   #ここまで画像認識
   return sortedImages
 

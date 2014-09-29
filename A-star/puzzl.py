@@ -6,7 +6,6 @@ import json
 import sys
 import communication
 import config
-import time
 
 ALL_COST = 0
 
@@ -902,7 +901,6 @@ else:
 para = communication.get_problem(master)
 ans_str = solve(para['answer'], para['columns'], para['rows'], para['lim_select'], para['selection_rate'], para['exchange_rate'])
 print ans_str
-time.sleep(15)
 r = requests.post("http://%s:8000/" % master, data = {'answer' : ans_str , 'cost' : ALL_COST})
 print r.text
 

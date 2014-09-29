@@ -123,7 +123,9 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
       imgs[pos] = img
       used.add(img)
       for table, direction in tables:
-        for new_img in table[img]:
+        #for new_img in table[img]:
+        new_img = table[img][0]
+        if True:
           heapq.heappush(queue, (new_img[1], new_img[0], addpos(pos, direction)))
       a += 1
   while len(queue) != 0:
@@ -144,8 +146,11 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
     imgs[pos] = img
     # 隣をqueueに入れる
     for table, direction in tables:
-      for new_img in table[img]:
-        heapq.heappush(queue, (new_img[1], new_img[0], addpos(pos, direction)))
+      #for new_img in table[img]:
+      new_img = table[img][0]
+      new_img1 = table[img][1]
+      if True:
+        heapq.heappush(queue, (new_img[1] - new_img1[1], new_img[0], addpos(pos, direction)))
   # 座標をシフトする
   print imgs
   if len(correctImages) == 0:

@@ -148,8 +148,12 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
         heapq.heappush(queue, (new_img[1], new_img[0], addpos(pos, direction)))
   # 座標をシフトする
   print imgs
-  minX = min(imgs.keys(), key=lambda a: a[0])[0]
-  minY = min(imgs.keys(), key=lambda a: a[1])[1]
+  if len(correctImages) == 0:
+    minX = min(imgs.keys(), key=lambda a: a[0])[0]
+    minY = min(imgs.keys(), key=lambda a: a[1])[1]
+  else:
+    minX = 0
+    minY = 0
   print "minX=%d, minY=%d" % (minX, minY)
   #out = [] # はみ出し画像
   all_imgs = set([(x, y) for x in range(len(array)) for y in range(len(array[0]))])
@@ -163,8 +167,9 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
       print "out"
       print "%s %s" % ((x, y), v)
     else:
-      array[x][y] = v
-      used_imgs.add(v)
+      if not (x, y) in correctImages:
+        array[x][y] = v
+        used_imgs.add(v)
   print array
   # はみ出している画像は適当に欠けているところに入れる
   out = all_imgs - used_imgs

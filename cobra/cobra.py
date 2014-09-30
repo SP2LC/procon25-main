@@ -182,7 +182,14 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
   imgs = {}
   if len(correctImages) == 0:
     # (類似度, 注目している画像, 現在座標)
-    heapq.heappush(queue, (0.0, (0, 0), (0, 0)))
+    #heapq.heappush(queue, (0.0, (0, 0), (0, 0)))
+    # 上下左右のテーブルでの1位と2位の差の合計が大きい順に並び替える
+    def sort_key(img):
+      return sum([tab[img][0][1] - tab[img][1][1] for tab, direction in tables])
+    all_imgs = [(x, y) for x in range(len(array)) for y in range(len(array[0]))]
+    start_img = min(all_imgs, key=sort_key)
+    print "start_img=%s key=%f" % (start_img, sort_key(start_img))
+    heapq.heappush(queue, (0.0, start_img, (0, 0)))
     used = set((0, 0))  # 使用した画像
   else:
     used = set()
@@ -195,8 +202,9 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
       for table, direction in tables:
         #for new_img in table[img]:
         new_img = table[img][0]
+        new_img1 = table[img][1]
         if True:
-          heapq.heappush(queue, (new_img[1], new_img[0], addpos(pos, direction)))
+          heapq.heappush(queue, (-(new_img1[1] - new_img[1]), new_img[0], addpos(pos, direction)))
       a += 1
   while len(queue) != 0:
     # 一番類似しているものから取り出す
@@ -220,7 +228,10 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
       new_img = table[img][0]
       new_img1 = table[img][1]
       if True:
-        heapq.heappush(queue, (new_img[1] - new_img1[1], new_img[0], addpos(pos, direction)))
+        # new_img[1] - new_img1[1] == -(new_img[1] - new_img[1])
+        # 類似していないほど値が大きくなるので、1位-2位は必ず負の値になる。
+        # heapqは小さい値から取り出されるので、1位と2位が離れている(差が絶対値の大きい負数)のものから先にたどる。
+        heapq.heappush(queue, (-(new_img1[1] - new_img[1]), new_img[0], addpos(pos, direction)))
   # 座標をシフトする
   print imgs
   if len(correctImages) == 0:
@@ -254,9 +265,6 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
       if array[i][j] == None:
         array[i][j] = out.pop()
   return array
-
-def retry(array, correctImages):
-  sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, array, correctImages=correctImages)
 
 # MARK: main
 
@@ -367,6 +375,10 @@ def do_Image_recognition():
   sortedImages = createArray(splitColumns, splitRows)
   sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, sortedImages)
   print sortedImages
+
+  def retry(array, correctImages):
+    sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, array, correctImages=correctImages)
+
   gui.show(sortedImages, splitImages, retry=retry)
   #ここまで画像認識
   return sortedImages

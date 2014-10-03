@@ -54,15 +54,18 @@ class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     form = cgi.FieldStorage(fp=self.rfile,headers=self.headers,environ={'REQUEST_METHOD':'POST','CONTENT_TYPE':self.headers['Content-Type'],})
     runtime = int(time.time() - start)
     ans_str = form['answer'].value
-    cost = calculation_cost_from_string(ans_str) + (runtime * 100)
+    cost = calculation_cost_from_string(ans_str)
+    true_cost = cost  + (runtime * 100)
     print 'cost is '+ str(cost)
+    print 'time_cost is ' + str((runtime * 100))
+    print 'all cost is '+ str(true_cost)
     print 'ans is \n'+ans_str
     print best_cost
-    if cost < best_cost:
-      best_cost = cost
+    if true_cost < best_cost:
+      best_cost = true_cost
       body = "send this answer!"
       if not(NO_POST):
-        print (communication.post_answer(form['answer'].value, 0, VERSION, sys.argv[1],TO_COMMUNICATION))
+        print (communication.post_answer(form['answer'].value, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))
       self.send_response(200)
       self.wfile.write(body)
     else:
@@ -84,11 +87,11 @@ class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 def calculation_cost_from_string(answer_string):
   cost = 0
-  splited_string = answer_string.split("\r\n")
-  cost += int(answer_string[0]) * SELECTON_RATE
-  for one_ope in answer_string:
-    if (one_ope[0] in "U") or (one_ope[0] in "D") or (one_ope[0] in "R") or (one_ope[0] in "L"):
-      cost += len(one_ope)
+  split_string = answer_string.split("\r\n")
+  cost += int(split_string[0]) * SELECTON_RATE
+  split_string.pop(0)
+  for line in range(0,len(split_string),3):
+    cost += int(split_string[line+1]) * EXCHANGE_RATE
   return cost
 
 def split(img, columns, rows):

@@ -813,7 +813,7 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer):
     first_selection_position = selection_positon
     
     #print "selection ",selection," selection_positon",selection_positon
-    ip_max = len(problem)-h
+    ip_max = len(problem)-w
     jp_max = len(problem[0])-2
     answer_text = ""
     problem,selection_positon,LRUD_text1 = small_problem(ip_max,jp_max,problem,selection_positon,answer_text,answer)  
@@ -841,7 +841,7 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer):
     matrixB = transpose(matrixB)
     for i in range(len(problem)):
         if i >= ip_max:
-            problem[i] = matrixB[i-4]
+            problem[i] = matrixB[i-w]
 
 
     LRUD_text = LRUD_text1 + transpose_operations(LRUD_text2)
@@ -851,7 +851,6 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer):
     check_matrix(answer,problem,selection_positon)
 
     problem = transpose(problem)
-
     return problem,answer_text
 
 def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
@@ -863,6 +862,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     answer =  sortedImages
 
     problem,L_answer_text = L_sprit(4,4,problem,answer)
+    print problem
     LIMIT_SELECTION -= 1    
 
     distance_table = create_distance_table(answer)

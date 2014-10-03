@@ -804,7 +804,7 @@ def small_problem(i_max,j_max,problem,selection_positon,answer_text,answer):
 
 def L_sprit(target_columns,target_rows,solve_problem,solve_answer):
     problem = transpose(solve_problem)
-    answer =  transpose(solve_answer)    
+    answer =  transpose(solve_answer)
     h = target_rows
     w = target_columns
 
@@ -839,17 +839,18 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer):
 
 
     matrixB = transpose(matrixB)
+    count = 0
     for i in range(len(problem)):
-        if i >= ip_max:
-            problem[i] = matrixB[i-w]
-
+        if i >= len(problem)-h:
+            problem[i] = matrixB[count]
+            count += 1
 
     LRUD_text = LRUD_text1 + transpose_operations(LRUD_text2)
     LRUD_text = loop_encode_text(LRUD_text)
     answer_text = "%X%X"%(first_selection_position[1],first_selection_position[0]) +"\r\n"+ str(len(LRUD_text)) +"\r\n"+ LRUD_text 
 
     check_matrix(answer,problem,selection_positon)
-
+    
     problem = transpose(problem)
     return problem,answer_text
 

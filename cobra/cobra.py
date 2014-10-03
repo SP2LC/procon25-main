@@ -405,7 +405,10 @@ port = config.port
 httpd = SocketServer.TCPServer((host, port), Procon_Cobra_Handler)
 
 print('serving at port', port)
-httpd.serve_forever()
+try:
+  httpd.serve_forever()
+except KeyboardInterrupt:
+  print "end of cobra server..."
+  httpd.shutdown()
 
-runtime = str(int(time_end - time_start))
-print "runtime = " + runtime
+

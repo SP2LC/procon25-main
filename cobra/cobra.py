@@ -53,8 +53,8 @@ class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     global best_cost
     form = cgi.FieldStorage(fp=self.rfile,headers=self.headers,environ={'REQUEST_METHOD':'POST','CONTENT_TYPE':self.headers['Content-Type'],})
     runtime = int(time.time() - start)
-    cost = calculation_cost_from_string(ans_str) + (runtime * 100)
     ans_str = form['answer'].value
+    cost = calculation_cost_from_string(ans_str) + (runtime * 100)
     print 'cost is '+ str(cost)
     print 'ans is \n'+ans_str
     print best_cost

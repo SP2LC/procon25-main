@@ -11,12 +11,12 @@ from collections import deque
 from PIL import Image
 from StringIO import StringIO
 import time
-import a_star
+import L
 import communication
 import heapq
 import gui
 
-VERSION = "新しいグラフ構造でシンプルなMD(deepcopyしない版)"
+VERSION = "L字に角を消していき問題縮小したあと、a-ster"
 TO_COMMUNICATION = "sp2lc" #sp2lcのときは自鯖の回答サーバー、proconのときはlocalhostのProconSimpleServer、practiceの時は沖縄高専の練習場と通信します。
 IMAGE_WINDOW = True
 NO_POST = False
@@ -123,9 +123,7 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
       imgs[pos] = img
       used.add(img)
       for table, direction in tables:
-        #for new_img in table[img]:
-        new_img = table[img][0]
-        if True:
+        for new_img in table[img]:
           heapq.heappush(queue, (new_img[1], new_img[0], addpos(pos, direction)))
       a += 1
   while len(queue) != 0:
@@ -146,19 +144,12 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
     imgs[pos] = img
     # 隣をqueueに入れる
     for table, direction in tables:
-      #for new_img in table[img]:
-      new_img = table[img][0]
-      new_img1 = table[img][1]
-      if True:
-        heapq.heappush(queue, (new_img[1] - new_img1[1], new_img[0], addpos(pos, direction)))
+      for new_img in table[img]:
+        heapq.heappush(queue, (new_img[1], new_img[0], addpos(pos, direction)))
   # 座標をシフトする
   print imgs
-  if len(correctImages) == 0:
-    minX = min(imgs.keys(), key=lambda a: a[0])[0]
-    minY = min(imgs.keys(), key=lambda a: a[1])[1]
-  else:
-    minX = 0
-    minY = 0
+  minX = min(imgs.keys(), key=lambda a: a[0])[0]
+  minY = min(imgs.keys(), key=lambda a: a[1])[1]
   print "minX=%d, minY=%d" % (minX, minY)
   #out = [] # はみ出し画像
   all_imgs = set([(x, y) for x in range(len(array)) for y in range(len(array[0]))])
@@ -172,9 +163,8 @@ def sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHe
       print "out"
       print "%s %s" % ((x, y), v)
     else:
-      if not (x, y) in correctImages:
-        array[x][y] = v
-        used_imgs.add(v)
+      array[x][y] = v
+      used_imgs.add(v)
   print array
   # はみ出している画像は適当に欠けているところに入れる
   out = all_imgs - used_imgs
@@ -316,7 +306,7 @@ def retry(array, correctImages):
 gui.show(sortedImages, splitImages, retry=retry)
 #ここまで画像認識
 
-answer_string = a_star.solve(sortedImages, splitColumns, splitRows, LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE)
+answer_string = L.solve(sortedImages, splitColumns, splitRows, LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE)
 time_end = time.clock()
 runtime = str(int(time_end - time_start))
 print "runtime = " + runtime

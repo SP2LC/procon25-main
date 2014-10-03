@@ -53,7 +53,7 @@ class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     global best_cost
     form = cgi.FieldStorage(fp=self.rfile,headers=self.headers,environ={'REQUEST_METHOD':'POST','CONTENT_TYPE':self.headers['Content-Type'],})
     runtime = int(time.time() - start)
-    cost = int(form['cost'].value) + (runtime * 100)
+    cost = calculation_cost_from_string(ans_str) + (runtime * 100)
     ans_str = form['answer'].value
     print 'cost is '+ str(cost)
     print 'ans is \n'+ans_str
@@ -81,6 +81,15 @@ class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     self.send_header('Content-length', len(body))
     self.end_headers()
     self.wfile.write(body)
+
+def calculation_cost_from_string(answer_string):
+  cost = 0
+  splited_string = answer_string.split("\r\n")
+  cost += int(answer_string[0]) * SELECTON_RATE
+  for one_ope in answer_string:
+    if (one_ope[0] in "U") or (one_ope[0] in "D") or (one_ope[0] in "R") or (one_ope[0] in "L"):
+      cost += len(one_ope)
+  return cost
 
 def split(img, columns, rows):
     images = []

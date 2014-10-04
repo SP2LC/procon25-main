@@ -386,14 +386,14 @@ def back(problem, answer, checked_nodes, result_queue):
   fwd_tag = "f"
   true_prob = problem
 
-  next_nodes = Node(answer,(0,0)).get_next_nodes() #problemに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
+  next_nodes = Node(answer,(0,0), (0,0),static_h_star).get_next_nodes() #problemに隣接するノードたち(上下左右)を辞書型でnext_nodesに追加
   for key, node in next_nodes.items() : #中身全部取り出すぜー
     added_operation = (key[1],("S%X%X"%key[0],()))
     if node.board != None :
       h_star = fast_distance_to_goal(Node(answer,(0,0),(0,0),static_h_star),node, distance_table)
       queue.push((h_star+SELECTON_RATE+EXCHANGE_RATE, node, added_operation, 1))
 
-  while len(queue) != 0:
+  while not queue.is_empty:
     operations = queue.element[2]
     if queue.element[1].board == true_prob: #仮に取り出したキューが正答と一致したら終了
       print "back goal"

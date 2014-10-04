@@ -858,15 +858,15 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer):
     problem = transpose(problem)
     return problem,answer_text
 
-def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
+def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate,target_columns,target_rows):
     global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, distance_table
     LIMIT_SELECTION = limit
     SELECTON_RATE = sel_rate
     EXCHANGE_RATE = exc_rate
     problem = make_problem(splitColumns, splitRows)
     answer =  sortedImages
-
-    problem,L_answer_text = L_sprit(4,4,problem,answer)
+    print "Reduction to " + str(target_columns) +"," + str(target_rows)
+    problem,L_answer_text = L_sprit(target_columns,target_rows,problem,answer)
     print problem
     LIMIT_SELECTION -= 1    
 
@@ -954,13 +954,23 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
 #main
 master = "" 
-if len(sys.argv) == 2:
+target_columns = 4
+target_rows = 4
+if len(sys.argv) == 3:
   master = sys.argv[1]
+  target_columns,target_rows = sys.argv[2].split("-")
+elif len(sys.argv) == 2:
+    if '.' in sys.argv[1]:
+       master = sys.argv[1]
+    elif '-' in sys.argv[1]:
+       target_columns,target_rows = sys.argv[1].split("-")
+       master = config.master
 else:
   master = config.master
 
+len(sys.argv) 
 para = communication.get_problem(master)
-ans_str = solve(para['answer'], para['columns'], para['rows'], para['lim_select'], para['selection_rate'], para['exchange_rate'])
+ans_str = solve(para['answer'], para['columns'], para['rows'], para['lim_select'], para['selection_rate'], para['exchange_rate'],int(target_columns),int(target_rows))
 print ans_str
 r = requests.post("http://%s:8000/" % master, data = {'answer' : ans_str})
 print r.text

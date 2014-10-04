@@ -995,8 +995,15 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
 #main
 master = "" 
-if len(sys.argv) == 2:
+if len(sys.argv) == 3:
   master = sys.argv[1]
+  target_columns,target_rows = sys.argv[2].split("-")
+elif len(sys.argv) == 2:
+    if '.' in sys.argv[1]:
+       master = sys.argv[1]
+    elif '-' in sys.argv[1]:
+       target_columns,target_rows = sys.argv[1].split("-")
+       master = config.master
 else:
   master = config.master
 

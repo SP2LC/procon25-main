@@ -995,6 +995,8 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
 #main
 master = "" 
+target_columns = 4
+target_rows = 4
 if len(sys.argv) == 3:
   master = sys.argv[1]
   target_columns,target_rows = sys.argv[2].split("-")

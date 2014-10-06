@@ -764,9 +764,15 @@ def small_problem(i_max,j_max,problem,selection_positon,answer_text,answer):
             #例外処理
             print "後入れ-----------------------------------------------------------------"
             if problem[i][len(problem[0])-1] == answer[i][len(problem[0])-2] :#or problem[i+1][len(problem)-1] == answer[i][len(problem)-2]:
-                if selection_positon[1] != len(problem[0])-2:
-                    for n in range(len(problem)-2 - selection_positon[1]):
-                        problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
+               if selection_positon[1] != len(problem[0])-2:
+                    if selection_positon[1] == len(problem[0])-1:
+                        problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
+                    else:
+                        for n in range(len(problem[0])-2 - selection_positon[1]):
+                            problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
+                if selection_positon[0] != i:
+                    for n in range(i - selection_positon[0]):
+                        problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
 
                 print "めんどくさいパターン"
                 problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)

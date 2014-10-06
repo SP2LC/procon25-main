@@ -226,46 +226,46 @@ def check_matrix(matrix_A,matrix_B,selection_positon):
     print "不一致マス数",no_count 
 
 def position_up(board,selection_positon,answer_text):
-    print "want to up",
+    #print "want to up",
     i,j = selection_positon
     new_board = L_exchange(board,(i,j),(i-1,j))
     new_answer_text = answer_text + "U"
     new_selection_position = (i-1,j)
 
-    print "selection_positon U ",selection_positon," -> ",new_selection_position
+    #print "selection_positon U ",selection_positon," -> ",new_selection_position
 
     return new_board,new_selection_position,new_answer_text
 
 def position_down(board,selection_positon,answer_text):
-    print "want to down",
+    #print "want to down",
     i,j = selection_positon
     new_board = L_exchange(board,(i,j),(i+1,j))
     new_answer_text = answer_text + "D"
     new_selection_position = (i+1,j)
 
-    print "selection_positon D ",selection_positon," -> ",new_selection_position
+    #print "selection_positon D ",selection_positon," -> ",new_selection_position
 
     return new_board,new_selection_position,new_answer_text
 
 def position_right(board,selection_positon,answer_text):
-    print "want to right",
+    #print "want to right",
     i,j = selection_positon
     new_board = L_exchange(board,(i,j),(i,j+1))
     new_answer_text = answer_text + "R"
     new_selection_position = (i,j+1)
 
-    print "selection_positon R ",selection_positon," -> ",new_selection_position
+    #print "selection_positon R ",selection_positon," -> ",new_selection_position
 
     return new_board,new_selection_position,new_answer_text
 
 def position_left(board,selection_positon,answer_text):
-    print "want to left",
+    #print "want to left",
     i,j = selection_positon
     new_board = L_exchange(board,(i,j),(i,j-1))
     new_answer_text = answer_text + "L"
     new_selection_position = (i,j-1)
 
-    print "selection_positon L ",selection_positon," -> ",new_selection_position
+    #print "selection_positon L ",selection_positon," -> ",new_selection_position
 
     return new_board,new_selection_position,new_answer_text
 
@@ -746,23 +746,23 @@ def small_problem(i_max,j_max,problem,selection_positon,answer_text,answer):
             if answer[i][j] != problem[i][j]:
                 problem,selection_positon,answer_text = move(i,j,i,j,problem,selection_positon,answer_text,answer)
             #print_matrix(problem)
-            print ""
+           # print ""
         #ここから車庫入れ処理
-        print "後ろ2つ ---------------------------------------------------------------"
+        #print "後ろ2つ ---------------------------------------------------------------"
 
         if selection_positon[0] == i:
-            print "選択ピースの位置が悪い"
+           # print "選択ピースの位置が悪い"
             problem,selection_positon,answer_text = position_down(problem,selection_positon,answer_text)
 
         #print "answer"
         #print_matrix(answer)
         if answer[i]  != problem[i]:
             problem,selection_positon,answer_text = move(i,len(problem[0])-2,i,len(problem[0])-1,problem,selection_positon,answer_text,answer)
-            print "problem"
+            #print "problem"
             #print_matrix(problem)
             
             #例外処理
-            print "後入れ-----------------------------------------------------------------"
+            #print "後入れ-----------------------------------------------------------------"
             if problem[i][len(problem[0])-1] == answer[i][len(problem[0])-2] :#or problem[i+1][len(problem)-1] == answer[i][len(problem)-2]:
                 if selection_positon[1] != len(problem[0])-2:
                     if selection_positon[1] == len(problem[0])-1:
@@ -774,7 +774,7 @@ def small_problem(i_max,j_max,problem,selection_positon,answer_text,answer):
                     for n in range(i - selection_positon[0]):
                         problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
 
-                print "めんどくさいパターン"
+                #print "めんどくさいパターン"
                 problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
                 problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
                 problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
@@ -796,15 +796,15 @@ def small_problem(i_max,j_max,problem,selection_positon,answer_text,answer):
             else:
 
                 if selection_positon[0] == i:
-                    print "選択ピースの位置が悪い"
+                   # print "選択ピースの位置が悪い"
                     problem,selection_positon,answer_text = position_down(problem,selection_positon,answer_text)
-                print "test"
+                #print "test"
                 problem,selection_positon,answer_text = move(i+1,len(problem[0])-2,i,len(problem[0])-2,problem,selection_positon,answer_text,answer)
-                print "test"
+                #print "test"
 
                 if (selection_positon[0] == i+1 and selection_positon[1] == len(problem[0]) -3) or (selection_positon[0] == i+1 and selection_positon[1] == len(problem[0]) -1) or (selection_positon[0] == i+2 and selection_positon[1] == len(problem[0]) -2) :
                     if selection_positon[0] == i+1 and selection_positon[1] == len(problem[0]) -3:
-                        print "パターン1"
+                        #print "パターン1"
                         problem,selection_positon,answer_text = position_down(problem,selection_positon,answer_text)
                         problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
                         problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
@@ -813,12 +813,12 @@ def small_problem(i_max,j_max,problem,selection_positon,answer_text,answer):
                         problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
                         problem,selection_positon,answer_text = position_down(problem,selection_positon,answer_text)
                     if selection_positon[0] == i+1 and selection_positon[1] == len(problem[0]) -1:
-                        print "パターン2"
+                        #print "パターン2"
                         problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
                         problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
                         problem,selection_positon,answer_text = position_down(problem,selection_positon,answer_text)                
                     if selection_positon[0] == i+2 and selection_positon[1] == len(problem[0]) -2:            
-                        print "パターン3"
+                        #print "パターン3"
                         problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
                         problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
                         problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
@@ -826,7 +826,7 @@ def small_problem(i_max,j_max,problem,selection_positon,answer_text,answer):
                         problem,selection_positon,answer_text = position_down(problem,selection_positon,answer_text)
 
                 else:
-                    print "OKKKKKKKKKKK"
+                    #print "OKKKKKKKKKKK"
                     if i + 1 == selection_positon[0]:
                         problem,selection_positon,answer_text = position_down(problem,selection_positon,answer_text)
                     if selection_positon[1] < len(problem[0])-2:
@@ -834,7 +834,7 @@ def small_problem(i_max,j_max,problem,selection_positon,answer_text,answer):
                             problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
                     if selection_positon[1] > len(problem[0])-2:
                         problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
-                    print "パターン3"
+                    #print "パターン3"
                     problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
                     problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
                     problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
@@ -862,12 +862,12 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer):
     first_selection_position = selection_positon
     
     #print "selection ",selection," selection_positon",selection_positon
-    ip_max = len(problem)-w
+    ip_max = len(problem)-h
     jp_max = len(problem[0])-2
     answer_text = ""
     problem,selection_positon,LRUD_text1 = small_problem(ip_max,jp_max,problem,selection_positon,answer_text,answer)  
     
-    print "l字の左端をソート"    
+    #print "l字の左端をソート"    
     matrixB = []
     matrixB_answer = []
     for i in range(len(problem)):
@@ -880,7 +880,7 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer):
     matrixB = transpose(matrixB)
     matrixB_answer = transpose(matrixB_answer)
     selection_positon = search(matrixB,selection)
-    ib_max = len(matrixB)-h
+    ib_max = len(matrixB)-w
     jb_max = len(matrixB[0])-2
     answer_text = ""
 

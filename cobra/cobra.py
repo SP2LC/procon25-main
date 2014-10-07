@@ -39,6 +39,9 @@ answer = []
 start = 0
 best_cost = 99999999999999
 
+# 画像認識待機用
+event = threading.Event()
+
 class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
   def __init__(self,request, client_address, server):
     SimpleHTTPServer.SimpleHTTPRequestHandler.__init__(self,request, client_address, server)
@@ -77,6 +80,9 @@ class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
       self.wfile.write(body)
 
   def do_GET(self):
+    if not event.is_set():
+      print "waiting..."
+    event.wait()  # 画像認識完了通知が来るまで待機
     data = {'answer' : answer, 'columns': splitColumns , 'rows' : splitRows , 'lim_select' : LIMIT_SELECTION , 'selection_rate' : SELECTON_RATE, 'exchange_rate' : EXCHANGE_RATE}
     body = json.dumps(data)
     self.send_response(200)
@@ -395,20 +401,35 @@ def do_Image_recognition():
   #ここまで画像認識
   return sortedImages
 
-start = time.time()
-
-answer = do_Image_recognition()
-
 host = socket.gethostbyname(socket.gethostname())
 print "location is %s" % host
 port = config.port
+
 httpd = SocketServer.TCPServer((host, port), Procon_Cobra_Handler)
 
-print('serving at port', port)
+def server():
+  print('serving at port', port)
+  try:
+    httpd.serve_forever()
+  except KeyboardInterrupt:
+    print "end of cobra server..."
+    httpd.shutdown()
+
+server_thr = threading.Thread(target=server)
+server_thr.daemon = True
+server_thr.start()
+
+print "Press Enter to start image recognition"
+raw_input()
+
+start = time.time()
+
+answer = do_Image_recognition()
+event.set() # 画像認識の完了を通知する
+
 try:
-  httpd.serve_forever()
+  while True:
+    time.sleep(10)
 except KeyboardInterrupt:
   print "end of cobra server..."
   httpd.shutdown()
-
-

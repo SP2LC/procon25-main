@@ -458,7 +458,19 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     fwd_thr.start()
     back_thr.start()
 
-    return result_queue.get()
+    while True:
+      try:
+        # 1秒ごとにタイムアウトする
+        # タイムアウト時にキューに内容が無ければEmpty例外が出る
+        return result_queue.get(True, 1)
+      except Queue.Empty:
+        # 例外が出ても何もしない
+        pass
+      except KeyboardInterrupt:
+        print "aborting"
+        # kill flagをセットしてスレッドを終了させる
+        kill_flag = True
+        sys.exit(0)
 
 
 #main

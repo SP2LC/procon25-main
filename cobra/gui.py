@@ -22,7 +22,7 @@ class ImageViewer(Tk.Frame):
 
     self.state = NORMAL
     self.selected = None
-    self.selected_wh = None
+    self.selected_wh = (1, 1)
 
     self.image_ids = []
     self.tk_images = []
@@ -163,26 +163,46 @@ class ImageViewer(Tk.Frame):
       cy = self.canvas.canvasy
       self.canvas.create_rectangle(x1, y1, x2, y2, width=2.0, outline="red", tags="selection")
     else:
+      # 選択範囲が画像サイズをオーバーした時の処理
+      if i + self.selected_wh[0] >= len(self.images):
+        print "over x"
+        i = len(self.images) - self.selected_wh[0]
+      if j + self.selected_wh[1] >= len(self.images[0]):
+        print "over y"
+        j = len(self.images[0]) - self.selected_wh[1]
       self.canvas.delete("mouseover")
       x1 = i * self.img_width
       y1 = j * self.img_height
-      x2 = x1 + self.img_width
-      y2 = y1 + self.img_height
+      x2 = x1 + self.selected_wh[0] * self.img_width
+      y2 = y1 + self.selected_wh[1] * self.img_height
       cx = self.canvas.canvasx
       cy = self.canvas.canvasy
       self.canvas.create_rectangle(x1, y1, x2, y2, width=2.0, outline="blue", tags="mouseover")
 
   def onclick(self, i, j):
     def func(event):
+      i_new, j_new = i, j
       if self.state == NORMAL:
-        print "%d %d" % (i, j)
-        self.selected = (i, j)
+        print "%d %d" % (i_new, j_new)
+        self.selected = (i_new, j_new)
         self.state = SELECTING
       elif self.state == SELECTED:
-        print "exchange %s to %s" % (self.selected, (i, j))
-        self.state = NORMAL
-        self.canvas.delete("selection")
-        self.exchange(self.selected, (i, j))
+        # 選択範囲が画像サイズをオーバーした時の処理
+        if i_new + self.selected_wh[0] >= len(self.images):
+          print "over x"
+          i_new = len(self.images) - self.selected_wh[0]
+        if j_new + self.selected_wh[1] >= len(self.images[0]):
+          print "over y"
+          j_new = len(self.images[0]) - self.selected_wh[1]
+        for k in range(self.selected_wh[0]):
+          for l in range(self.selected_wh[1]):
+            orig = (self.selected[0] + k, self.selected[1] + l)
+            dest = (i_new + k, j_new + l)
+            print "exchange %s to %s" % (orig, dest)
+            self.state = NORMAL
+            self.canvas.delete("selection")
+            self.exchange(orig, dest)
+        self.selected_wh = (1, 1)
     return func
 
   def release(self, event):

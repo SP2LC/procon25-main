@@ -709,7 +709,7 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
             selection_positon = search(problem,selection)
             first_selection_position = selection_positon
         if corner_text[1] == "L":
-            selection = answer[len(answer)-1][len(answer)-1]
+            selection = answer[len(answer)-1][len(answer[0])-1]
             selection_positon = search(problem,selection)
             first_selection_position = selection_positon
 
@@ -729,7 +729,7 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
         answer =  rotation(transpose(solve_answer))
 
         if corner_text[1] == "R":
-            selection = answer[len(answer)-1][len(answer)-1]
+            selection = answer[len(answer)-1][len(answer[0])-1]
             selection_positon = search(problem,selection)
 
             selection = transpose(solve_answer)[0][0]

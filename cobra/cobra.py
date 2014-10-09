@@ -405,7 +405,10 @@ host = socket.gethostbyname(socket.gethostname())
 print "location is %s" % host
 port = config.port
 
-httpd = SocketServer.TCPServer((host, port), Procon_Cobra_Handler)
+class ReuseServer(SocketServer.TCPServer):
+  allow_reuse_address = True
+
+httpd = ReuseServer((host, port), Procon_Cobra_Handler)
 
 def server():
   print('serving at port', port)

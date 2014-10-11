@@ -430,7 +430,7 @@ def back(problem, answer, checked_nodes, L_answer_text, result_queue):
 
     back_min = min(back_min, astar_step(queue, checked_nodes, distance_table, back_min, my_tag, fwd_ahead, back_ahead))
 
-def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
+def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate, target_columns, target_rows):
     global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, rows, columns, fwd_ahead, back_ahead
     LIMIT_SELECTION = limit
     SELECTON_RATE = sel_rate
@@ -441,15 +441,15 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     rows = splitRows
     checked_nodes = {} #set() #チェック済みのノード集合
 
-    problem,L_answer_text = L_sprit.L_sprit(4, 4, problem,answer,"UL")
+    problem,L_answer_text = L_sprit.L_sprit(target_columns, target_rows, problem,answer,"UL")
     LIMIT_SELECTION -= 1
 
     fwd_ahead = problem
     back_ahead = answer
     result_queue = Queue.Queue()
 
-    fwd_thr = threading.Thread(target=forward, name="fwd", args=(problem, answer, checked_nodes, L_answer_text, result_queue))
-    back_thr = threading.Thread(target=back, name="back", args=(problem, answer, checked_nodes, L_answer_text, result_queue))
+    fwd_thr = threading.Thread(target=forward, name="fwd", args=(problem, answer, checked_nodes, L_answer_text, result_queue, target_columns, target_rows))
+    back_thr = threading.Thread(target=back, name="back", args=(problem, answer, checked_nodes, L_answer_text, result_queue, target_columns, target_rows))
 
     fwd_thr.daemon = True
     back_thr.daemon = True
@@ -474,13 +474,22 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
 #main
 master = "" 
-if len(sys.argv) == 2:
+target_columns = 4
+target_rows = 4
+if len(sys.argv) == 3:
   master = sys.argv[1]
+  target_columns,target_rows = sys.argv[2].split("-")
+elif len(sys.argv) == 2:
+    if '.' in sys.argv[1]:
+       master = sys.argv[1]
+    elif '-' in sys.argv[1]:
+       target_columns,target_rows = sys.argv[1].split("-")
+       master = config.master
 else:
   master = config.master
 
 para = communication.get_problem(master)
-ans_str = solve(para['answer'], para['columns'], para['rows'], para['lim_select'], para['selection_rate'], para['exchange_rate'])
+ans_str = solve(para['answer'], para['columns'], para['rows'], para['lim_select'], para['selection_rate'], para['exchange_rate'],int(target_columns),int(target_rows))
 print ans_str
 r = requests.post("http://%s:8000/" % master, data = {'answer' : ans_str , 'cost' : ALL_COST})
 print r.text

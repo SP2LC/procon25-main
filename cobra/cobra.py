@@ -58,21 +58,24 @@ class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     runtime = int(time.time() - start)
     ans_str = form['answer'].value
     cost = calculation_cost_from_string(ans_str)
+    cout_select_of_answer = int(ans_str.split("\r\n")[0])
     true_cost = cost  + (runtime * 100)
     print 'cost is '+ str(cost)
     print 'time_cost is ' + str((runtime * 100))
     print 'all cost is '+ str(true_cost)
     print 'ans is \n'+ans_str
     print best_cost
-    if true_cost < best_cost:
+    if true_cost < best_cost and cout_select_of_answer <= LIMIT_SELECTION:
       best_cost = true_cost
       body = "send this answer!"
+      print "send this answer" 
       if not(NO_POST):
         print (communication.post_answer(form['answer'].value, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))
       self.send_response(200)
       self.wfile.write(body)
     else:
       body = "not send this answer..."
+      print "not send this answer..."
       self.send_response(200)
       self.send_header('Content-type', 'text/html; charset=utf-8')
       self.send_header('Content-length', len(body))

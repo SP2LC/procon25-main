@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ALGORITHMS="puzzl L L-dynamic"
+ALGORITHMS="puzzl L L-dynamic a_star"
 SERVER="192.168.10.16"
 
 function launch() {

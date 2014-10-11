@@ -448,8 +448,8 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate, targ
     back_ahead = answer
     result_queue = Queue.Queue()
 
-    fwd_thr = threading.Thread(target=forward, name="fwd", args=(problem, answer, checked_nodes, L_answer_text, result_queue, target_columns, target_rows))
-    back_thr = threading.Thread(target=back, name="back", args=(problem, answer, checked_nodes, L_answer_text, result_queue, target_columns, target_rows))
+    fwd_thr = threading.Thread(target=forward, name="fwd", args=(problem, answer, checked_nodes, L_answer_text, result_queue))
+    back_thr = threading.Thread(target=back, name="back", args=(problem, answer, checked_nodes, L_answer_text, result_queue))
 
     fwd_thr.daemon = True
     back_thr.daemon = True

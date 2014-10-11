@@ -412,13 +412,14 @@ def sender():
     runtime = int(time.time() - start)
     ans_str = ans
     cost = calculation_cost_from_string(ans_str)
+    cout_select_of_answer = int(ans_str.split("\r\n")[0])
     true_cost = cost  + (runtime * 100)
     print 'cost is '+ str(cost)
     print 'time_cost is ' + str((runtime * 100))
     print 'all cost is '+ str(true_cost)
     print 'ans is \n'+ans_str
     print best_cost
-    if true_cost < best_cost:
+    if true_cost < best_cost and cout_select_of_answer <= LIMIT_SELECTION:
       print "send this answer!"
       if not(NO_POST):
         response = (communication.post_answer(ans_str, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))

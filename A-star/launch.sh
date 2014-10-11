@@ -22,7 +22,17 @@ EOF
   fi
 }
 
+if [ -e problem.json ]
+then
+  echo "deleteng old proble.json"
+  rm problem.json
+fi
 curl http://$SERVER:8000/ -o problem.json
+if [ ! -e problem.json ]
+then
+  echo "download error"
+  exit 1
+fi
 
 for (( i = 0; i < ${#ALGORITHMS[@]}; i++ ))
 do

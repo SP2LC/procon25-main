@@ -19,5 +19,6 @@ config.pyを書き換えることでcobra.pyが駆動してるサーバーのip�
 `pypy L.py [cobraのip] [縮小先columns-縮小先rows]`  
 `L.py`と`L-good.py`に関しては縮小先マス数を引数で指定できます。  
 その場合 - で区切った一連の文字列で指定してください。 ex`pypy L-good.py 5-5`  
-
+`./launch.sh`
+複数スクリプトを同時起動する。設定方法はソースを読んで察してください。
 

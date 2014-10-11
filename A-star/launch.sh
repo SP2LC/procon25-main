@@ -6,12 +6,20 @@ SERVER="192.168.10.16"
 function launch() {
   echo "launching $1 $2"
   dir=`pwd`
-  osascript <<EOF
+  if [ `uname` = "Darwin" ]
+  then
+    # Macの場合
+    osascript <<EOF
 tell application "Terminal"
   activate
   do script with command "cd $dir; pypy $1 local:$SERVER $2"
 end tell
 EOF
+  elif [ `uname` = "Linux" ]
+  then
+    # Linuxの場合
+    gnome-terminal -e "bash -c 'cd $dir; pypy $1 local:$SERVER $2; read'"
+  fi
 }
 
 curl http://$SERVER:8000/ -o problem.json

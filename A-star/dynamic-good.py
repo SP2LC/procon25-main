@@ -295,18 +295,20 @@ def astar_step(queue, checked_nodes, table, min_distance, tag, fwd_ahead, back_a
         if node.board != None and not((tuplenode(node),tag) in checked_nodes): #各隣接ノードがcheckd_nodesに無ければキューに追加。
             h_star = fast_distance_to_goal(looking_node,node, table)
             f_star = g_star + h_star
-            if h_star <= min_distance:
-                 min_distance = h_star
-                 print "%s distance=%d tag=%s" % (operations_to_list(added_operation), h_star, tag)
-                 #if int(h_star) == 0:
-                   #cost = -1000000000
-                   #print "stop!"
+
             if select:
               new_selection_count = selection_count + 1
             else:
               new_selection_count = selection_count
             if new_selection_count <= LIMIT_SELECTION:
               queue.push((f_star + cost + EXCHANGE_RATE, node, added_operation, new_selection_count))
+
+              if h_star <= min_distance:
+                min_distance = h_star
+                print "%s distance=%d tag=%s" % (operations_to_list(added_operation), h_star, tag)
+                #if int(h_star) == 0:
+                  #cost = -1000000000
+                  #print "stop!"
 
     return min_distance
 

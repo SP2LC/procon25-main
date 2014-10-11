@@ -42,6 +42,9 @@ best_cost = 99999999999999
 # 画像認識待機用
 event = threading.Event()
 
+# 解答キュー
+answer_queue = Queue.Queue()
+
 class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
   def __init__(self,request, client_address, server):
     SimpleHTTPServer.SimpleHTTPRequestHandler.__init__(self,request, client_address, server)
@@ -53,31 +56,10 @@ class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     self.exchange_rate = 0
 
   def do_POST(self):
-    global best_cost
     form = cgi.FieldStorage(fp=self.rfile,headers=self.headers,environ={'REQUEST_METHOD':'POST','CONTENT_TYPE':self.headers['Content-Type'],})
-    runtime = int(time.time() - start)
-    ans_str = form['answer'].value
-    cost = calculation_cost_from_string(ans_str)
-    true_cost = cost  + (runtime * 100)
-    print 'cost is '+ str(cost)
-    print 'time_cost is ' + str((runtime * 100))
-    print 'all cost is '+ str(true_cost)
-    print 'ans is \n'+ans_str
-    print best_cost
-    if true_cost < best_cost:
-      best_cost = true_cost
-      body = "send this answer!"
-      if not(NO_POST):
-        print (communication.post_answer(form['answer'].value, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))
-      self.send_response(200)
-      self.wfile.write(body)
-    else:
-      body = "not send this answer..."
-      self.send_response(200)
-      self.send_header('Content-type', 'text/html; charset=utf-8')
-      self.send_header('Content-length', len(body))
-      self.end_headers()
-      self.wfile.write(body)
+    answer_queue.put(form['answer'].value)
+    self.send_response(200)
+    self.wfile.write("enqueue")
 
   def do_GET(self):
     if not event.is_set():
@@ -315,7 +297,7 @@ if "-d" in options:
   print "no post"
 
 def do_Image_recognition():
-  global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, splitColumns, splitRows
+  global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, splitColumns, splitRows, answer
   ppmFile_content = communication.get_problem(sys.argv[1],TO_COMMUNICATION)
   ppmFile = ppmFile_content[:100]
   splitStrings = re.split("[\t\r\n ]+", ppmFile)
@@ -397,7 +379,12 @@ def do_Image_recognition():
   def retry(array, correctImages):
     sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, array, correctImages=correctImages)
 
-  gui.show(sortedImages, splitImages, retry=retry)
+  def setter(array):
+    global answer
+    answer = array
+    event.set() # 画像認識の完了を通知する
+
+  gui.show(sortedImages, splitImages, retry=retry, setter=setter)
   #ここまで画像認識
   return sortedImages
 
@@ -418,9 +405,40 @@ def server():
     print "end of cobra server..."
     httpd.shutdown()
 
+def sender():
+  global best_cost
+  while True:
+    ans = answer_queue.get()
+    runtime = int(time.time() - start)
+    ans_str = ans
+    cost = calculation_cost_from_string(ans_str)
+    true_cost = cost  + (runtime * 100)
+    print 'cost is '+ str(cost)
+    print 'time_cost is ' + str((runtime * 100))
+    print 'all cost is '+ str(true_cost)
+    print 'ans is \n'+ans_str
+    print best_cost
+    if true_cost < best_cost:
+      print "send this answer!"
+      if not(NO_POST):
+        response = (communication.post_answer(ans_str, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))
+        print response
+        if TO_COMMUNICATION == "procon" and response[0:8] != "ACCEPTED":
+          print "invalid answer"
+        elif TO_COMMUNICATION == "procon" and response.split(" ")[1] != "0":
+          print "mismatch"
+        else:
+          best_cost = true_cost
+    else:
+      print "not send this answer..."
+
 server_thr = threading.Thread(target=server)
 server_thr.daemon = True
 server_thr.start()
+
+sender_thr = threading.Thread(target=sender)
+sender_thr.daemon = True
+sender_thr.start()
 
 print "Press Enter to start image recognition"
 raw_input()

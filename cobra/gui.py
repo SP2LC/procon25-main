@@ -13,12 +13,13 @@ SELECTED = 2
 # 与えられたimagesを破壊的に変更するらしい
 
 class ImageViewer(Tk.Frame):
-  def __init__(self, images, splitImages, retry):
+  def __init__(self, images, splitImages, retry, setter=lambda a: None):
     Tk.Frame.__init__(self, None)
     self.images = images
     self.original_images = copy.deepcopy(images)
     self.splitImages = splitImages
     self.retry_func = retry
+    self.setter_func = setter
 
     self.state = NORMAL
     self.selected = None
@@ -81,7 +82,8 @@ class ImageViewer(Tk.Frame):
 
   def ok(self):
     print "ok!"
-    self.quit() # 閉じてない気がする
+    #self.quit() # 閉じてない気がする
+    self.setter_func(self.images)
 
   def reset(self):
     print "reset!"
@@ -298,7 +300,7 @@ class ImageViewer(Tk.Frame):
       self.images[i][0] = last_row[i]
     self.show_image()
 
-def show(images, splitImages, retry=lambda a, b: 0):
+def show(images, splitImages, retry=lambda a, b: 0, setter=lambda a: None):
   single_w = splitImages[0][0].shape[1]
   single_h = splitImages[0][0].shape[0]
   width = single_w * len(splitImages)
@@ -309,7 +311,7 @@ def show(images, splitImages, retry=lambda a, b: 0):
   if height > MAX_IMG_SIZE:
     ratio = float(MAX_IMG_SIZE) / height 
     splitImages = shrink(splitImages, ratio)
-  iv = ImageViewer(images, splitImages, retry)
+  iv = ImageViewer(images, splitImages, retry, setter)
   iv.mainloop()
   return iv.images
 

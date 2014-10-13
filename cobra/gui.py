@@ -196,14 +196,24 @@ class ImageViewer(Tk.Frame):
         if j_new + self.selected_wh[1] >= len(self.images[0]):
           print "over y"
           j_new = len(self.images[0]) - self.selected_wh[1]
-        for k in range(self.selected_wh[0]):
-          for l in range(self.selected_wh[1]):
-            orig = (self.selected[0] + k, self.selected[1] + l)
-            dest = (i_new + k, j_new + l)
-            print "exchange %s to %s" % (orig, dest)
-            self.state = NORMAL
-            self.canvas.delete("selection")
-            self.exchange(orig, dest)
+        if (self.selected[0] >= i_new and self.selected[1] == j_new) or (self.selected[0] == i_new and self.selected[1] >= j_new):
+          for k in range(self.selected_wh[0]):
+            for l in range(self.selected_wh[1]):
+              orig = (self.selected[0] + k, self.selected[1] + l)
+              dest = (i_new + k, j_new + l)
+              print "exchange %s to %s" % (orig, dest)
+              self.state = NORMAL
+              self.canvas.delete("selection")
+              self.exchange(orig, dest)
+        else:
+          for k in range(self.selected_wh[0]):
+            for l in range(self.selected_wh[1]): 
+              orig = ((self.selected[0] + (self.selected_wh[0]-k))-1, (self.selected[1] + (self.selected_wh[1] - l))-1)
+              dest = ((i_new + (self.selected_wh[0] - k))-1, (j_new +(self.selected_wh[1] - l))-1)
+              print "exchange %s to %s" % (orig, dest)
+              self.state = NORMAL
+              self.canvas.delete("selection")
+              self.exchange(orig, dest)
         self.selected_wh = (1, 1)
     return func
 

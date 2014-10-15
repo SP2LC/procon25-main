@@ -296,6 +296,19 @@ if "-d" in options:
   NO_POST = True
   print "no post"
 
+# 緑に色を変更
+ESC_GREEN = "\033[32m"
+# 黄色
+ESC_YELLOW = "\033[33m"
+# 赤
+ESC_RED = "\033[31m"
+# もとに戻す
+ESC_RESET = "\033[39m"
+# 白背景
+ESC_WHITE_BG = "\033[47m"
+# 背景リセット
+ESC_RESET_BG = "\033[49m"
+
 def do_Image_recognition():
   global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, splitColumns, splitRows, answer
   ppmFile_content = communication.get_problem(sys.argv[1],TO_COMMUNICATION)
@@ -425,13 +438,14 @@ def sender():
         response = (communication.post_answer(ans_str, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))
         print response
         if TO_COMMUNICATION == "procon" and response[0:8] != "ACCEPTED":
-          print "invalid answer"
+          print ESC_RED + "invalid answer" + ESC_RESET
         elif TO_COMMUNICATION == "procon" and response.split(" ")[1] != "0":
-          print "mismatch"
+          print ESC_RED + "mismatch" + ESC_RESET
         else:
+          print ESC_GREEN + ("正解 コスト=%d" % true_cost) + ESC_RESET  # 緑
           best_cost = true_cost
     else:
-      print "not send this answer..."
+      print ESC_YELLOW + "not send this answer..." + ESC_RESET # 黄色
 
 server_thr = threading.Thread(target=server)
 server_thr.daemon = True

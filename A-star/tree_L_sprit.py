@@ -660,7 +660,7 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
         ip_max = len(problem)-h
         jp_max = len(problem[0])-2
         problem,selection_positon,LRUD_text1 = small_problem(ip_max,jp_max,problem,selection_positon,answer_text,answer)  
-
+        LRUD_text1 = rotation_operations(LRUD_text1)
         problem = rotation(problem)
         answer  = rotation(answer)
 
@@ -683,6 +683,7 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
 
         matrixB,selection_positon,LRUD_text2 = small_problem(ib_max,jb_max,matrixB,selection_positon,answer_text,matrixB_answer) 
         matrixB = rotation(transpose(matrixB))
+        LRUD_text2 = rotation_operations(transpose_operations(LRUD_text2))
         count = 0
         if corner_text[0] == "U":
             for i in range(len(problem)):
@@ -707,7 +708,7 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
 
         matrixB,selection_positon,LRUD_text2 = small_problem(ib_max,jb_max,matrixB,selection_positon,answer_text,matrixB_answer) 
         matrixB = transpose(matrixB)
-
+        LRUD_text2 = transpose_operations(LRUD_text2)
         count = 0
         if corner_text[0] == "U":
             for i in range(len(problem)):
@@ -720,9 +721,6 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
                 if i < h:
                     problem[i] = matrixB[count]
                     count += 1  
-
-
-    LRUD_text2 = rotation_operations(transpose_operations(LRUD_text2))
 
 
     LRUD_text = LRUD_text1 + LRUD_text2

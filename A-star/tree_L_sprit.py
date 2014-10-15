@@ -737,4 +737,18 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
     problem = transpose(problem)
     return problem,answer_text
 
-#sortedImages = [[(4, 7), (0, 7), (5, 1), (1, 5), (6, 3), (0, 5), (2, 1), (3, 1)], [(6, 2), (1, 2), (2, 0), (1, 1), (3, 3), (4, 6), (5, 7), (0, 2)], [(0, 3), (2, 3), (0, 4), (6, 7), (4, 5), (4, 3), (2, 4), (7, 5)], [(0, 0), (7, 2), (1, 3), (4, 1), (7, 3), (3, 5), (1, 7), (4, 2)], [(7, 6), (7, 4), (6, 6), (1, 0), (2, 2), (4, 4), (1, 6), (5, 3)], [(0, 6), (7, 0), (3, 2), (2, 7), (2, 6), (6, 5), (7, 7), (6, 4)], [(3, 4), (5, 5), (3, 7), (3, 0), (6, 0), (5, 4), (5, 6), (6, 1)], [(0, 1), (4, 0), (7, 1), (1, 4), (3, 6), (5, 2), (2, 5), (5, 0)]]
+def corner_L_sprit(target_columns,target_rows,solve_problem,solve_answer):
+    A_problem,A_answer_text = L_sprit(target_columns,target_rows,solve_problem,solve_answer,"UL")
+    B_problem,B_answer_text = L_sprit(target_columns,target_rows,solve_problem,solve_answer,"UR")
+    if len(A_answer_text) > len(B_answer_text):
+        A_problem = B_problem
+        A_answer_text = B_answer_text
+    B_problem,B_answer_text = L_sprit(target_columns,target_rows,solve_problem,solve_answer,"DL")
+    if len(A_answer_text) > len(B_answer_text):
+        A_problem = B_problem
+        A_answer_text = B_answer_text    
+    B_problem,B_answer_text = L_sprit(target_columns,target_rows,solve_problem,solve_answer,"DR")
+    if len(A_answer_text) > len(B_answer_text):
+        A_problem = B_problem
+        A_answer_text = B_answer_text
+    return A_problem,A_answer_text  

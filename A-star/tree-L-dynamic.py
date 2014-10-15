@@ -441,7 +441,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate, targ
     rows = splitRows
     checked_nodes = {} #set() #チェック済みのノード集合
 
-    problem,L_answer_text = tree_L_sprit.L_sprit(target_columns, target_rows, problem,answer,"UL")
+    problem,L_answer_text = tree_L_sprit.corner_L_sprit(target_columns, target_rows, problem,answer)
     LIMIT_SELECTION -= 1
 
     fwd_ahead = problem

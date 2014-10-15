@@ -166,7 +166,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate,targe
     problem = make_problem(splitColumns, splitRows)
     answer =  sortedImages
     print "Reduction to " + str(target_columns) +"," + str(target_rows)
-    problem,L_answer_text = tree_L_sprit.L_sprit(target_columns,target_rows,problem,answer,"UL")
+    problem,L_answer_text = tree_L_sprit.corner_L_sprit(target_columns,target_rows,problem,answer)
     print problem
     LIMIT_SELECTION -= 1
 

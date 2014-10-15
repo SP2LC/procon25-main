@@ -450,18 +450,16 @@ def move(pi,pj,i,j,problem,answer,selection_positon,answer_text,table):
     #print "目的ピース",purpose,"目的地",(pi,pj),"目的ピースポジション",purpose_positon
     #print "選択ピース位置",selection_positon
     if purpose_positon != (pi,pj):#目的ピースが目的地になかったとき
-        #print "すでに目的地にピースがある"
-    #else:
         problem[purpose_positon[0]][purpose_positon[1]] =  (problem[purpose_positon[0]][purpose_positon[1]][0],problem[purpose_positon[0]][purpose_positon[1]][1],True)#目的ピースの固定
         problem,selection_positon,purpose_positon,answer_text = move_selection(pi,pj,problem,answer,purpose_positon,selection_positon,answer_text,table)
         problem[purpose_positon[0]][purpose_positon[1]] =  (problem[purpose_positon[0]][purpose_positon[1]][0],problem[purpose_positon[0]][purpose_positon[1]][1],False)#目的ピースの開放
     #print answer_text
-   # print_matrix(problem)
+    #print_matrix(problem)
 
     problem,selection_positon,answer_text = move_purpose(pi,pj,problem,purpose_positon,selection_positon,answer_text,table)
     problem[pi][pj] = (problem[pi][pj][0],problem[pi][pj][1],True )
 
-   # print problem[i][j]
+    #print problem[i][j]
 
     #print_matrix(problem)
     #check_matrix(problem,answer,selection_positon)
@@ -479,16 +477,14 @@ def small_problem(i_max,j_max,problem,selection_positon,answer_text,answer):
 
 	#print "problem"
 	#print_matrix(problem)
-	selection = answer[len(answer)-1][len(answer[0])-1]
-	selection_positon = search(problem,selection)
 	#print selection,selection_positon
 
-	static_first_selection_positon = selection_positon
+	#static_first_selection_positon = selection_positon
 	#check_matrix(answer,problem,selection_positon)
 
 	for i in range(i_max):
 	    for j in range(j_max):
-
+            
 	        problem,selection_positon,answer_text = move(i,j,i,j,problem,answer,selection_positon,answer_text,distance_table)
 	        #print answer_text
 	        #print i,"行目",j,"番目","を整地＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝"
@@ -667,7 +663,6 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
 
         problem = rotation(problem)
         answer  = rotation(answer)
-        LRUD_text1 = rotation_operations(LRUD_text1)
 
         matrixB = []
         matrixB_answer = []
@@ -687,7 +682,6 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
         jb_max = len(matrixB[0])-2
 
         matrixB,selection_positon,LRUD_text2 = small_problem(ib_max,jb_max,matrixB,selection_positon,answer_text,matrixB_answer) 
-        LRUD_text2 = rotation_operations(transpose_operations(LRUD_text2))
         matrixB = rotation(transpose(matrixB))
         count = 0
         if corner_text[0] == "U":
@@ -712,7 +706,6 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
         jb_max = len(matrixB[0])-2
 
         matrixB,selection_positon,LRUD_text2 = small_problem(ib_max,jb_max,matrixB,selection_positon,answer_text,matrixB_answer) 
-        LRUD_text2 = transpose_operations(LRUD_text2)
         matrixB = transpose(matrixB)
 
         count = 0
@@ -729,12 +722,23 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
                     count += 1  
 
 
+    LRUD_text2 = rotation_operations(transpose_operations(LRUD_text2))
+
+
     LRUD_text = LRUD_text1 + LRUD_text2
 
     answer_text = "%X%X"%(first_selection_position[1],first_selection_position[0]) +"\r\n"+ str(len(LRUD_text)) +"\r\n"+ LRUD_text 
 
     check_matrix(transpose(solve_answer),problem,selection_positon)
     problem = transpose(problem)
+
+
+    #LRUD_text1 = rotation_operations(LRUD_text1)
+
+
+    #LRUD_text2 = transpose_operations(LRUD_text2)
+
+
     return problem,answer_text
 
 def corner_L_sprit(target_columns,target_rows,solve_problem,solve_answer):

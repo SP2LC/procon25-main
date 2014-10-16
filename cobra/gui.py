@@ -99,7 +99,7 @@ class ImageViewer(Tk.Frame):
       for j in range(len(self.images[1])):
         if not self.wrong[i][j]:
           correct_images[(i, j)] = self.images[i][j]
-    print "corect img"
+    print "correct img"
     print correct_images
     print len(correct_images)
     self.retry_func(self.images, correct_images)

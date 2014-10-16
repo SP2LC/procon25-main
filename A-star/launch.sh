@@ -24,7 +24,7 @@ EOF
 
 if [ -e problem.json ]
 then
-  echo "deleteng old proble.json"
+  echo "deleting old problem.json"
   rm problem.json
 fi
 curl http://$SERVER:8000/ -o problem.json

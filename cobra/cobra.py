@@ -282,7 +282,7 @@ for arg in sys.argv[2:]:
 
 if "-p" in options:
   TO_COMMUNICATION = "procon"
-  print "communication with Proocn Simple Server at localhost"
+  print "communication with Procon Simple Server at localhost"
 elif "-r" in options:
   TO_COMMUNICATION = "practice"
   print "communication with procon2014-practice.oknct-ict.org"

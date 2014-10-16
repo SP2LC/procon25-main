@@ -651,13 +651,16 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     #check_matrix(answer,problem,selection_positon)
 
     for i in range(len(problem)-2):
-
-        #if len(answer_text_R) > len(answer_text_L): 
-        if i % 4 == 0:        
-            problem_L, selection_positon_L, answer_text_L = set_row(i, problem, answer, selection_positon, distance_table, answer_text,"L")
+        problem_R = deepcopy(problem)
+        problem_L = deepcopy(problem)
+        problem_R, selection_positon_R, answer_text_R = set_row(i, problem_R, answer, selection_positon, distance_table, answer_text,"R")
+        problem_L, selection_positon_L, answer_text_L = set_row(i, problem_L, answer, selection_positon, distance_table, answer_text,"L")
+        if len(answer_text_R) > len(answer_text_L): 
+        #if i % 4 == 0:        
+            #problem_L, selection_positon_L, answer_text_L = set_row(i, problem, answer, selection_positon, distance_table, answer_text,"L")
             problem,selection_positon,answer_text = problem_L,selection_positon_L,answer_text_L
         else:
-            problem_R, selection_positon_R, answer_text_R = set_row(i, problem, answer, selection_positon, distance_table, answer_text,"R")
+            #problem_R, selection_positon_R, answer_text_R = set_row(i, problem, answer, selection_positon, distance_table, answer_text,"R")
             problem,selection_positon,answer_text = problem_R,selection_positon_R,answer_text_R
 
     #ラスト２段処理開始

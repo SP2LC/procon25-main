@@ -463,7 +463,7 @@ def move(pi,pj,i,j,problem,answer,selection_positon,answer_text,table):
 
     return problem,selection_positon,answer_text
 
-def set_row(i, problem, answer, selection_positon, distance_table, answer_text, direction="L"):
+def set_row(i, problem, answer, selection_positon, distance_table, answer_text, direction):
   if direction == "R":
     for j in range(len(problem[0])-2):
 
@@ -494,10 +494,18 @@ def set_row(i, problem, answer, selection_positon, distance_table, answer_text, 
           problem[i][x] = (problem[i][x][0],problem[i][x][1],False)
           if selection_positon[1] != x:
               if selection_positon[1] == x_ans:
-                  problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
+                  if direction == "R":
+                    problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
+                  else:
+                    problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
+
               else:
                   for n in range(x - selection_positon[1]):
+                    if direction == "R":
                       problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
+                    else:
+                      problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
+
           if selection_positon[0] != i:
               for n in range(i - selection_positon[0]):
                   problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
@@ -546,7 +554,7 @@ def set_row(i, problem, answer, selection_positon, distance_table, answer_text, 
               problem[i+1][x] = (problem[i+1][x][0],problem[i+1][x][1],False)
 
 
-              if (selection_positon[0] == i+1 and selection_positon[1] == len(problem[0]) -3) or (selection_positon[0] == i+1 and selection_positon[1] == len(problem[0]) -1) or (selection_positon[0] == i+2 and selection_positon[1] == len(problem[0]) -2) :
+              if direction == "R" and ((selection_positon[0] == i+1 and selection_positon[1] == len(problem[0]) -3) or (selection_positon[0] == i+1 and selection_positon[1] == len(problem[0]) -1) or (selection_positon[0] == i+2 and selection_positon[1] == len(problem[0]) -2)) :
                   if selection_positon[0] == i+1 and selection_positon[1] == len(problem[0]) -3:
                       #print "パターン1"
                       problem,selection_positon,answer_text = position_down(problem,selection_positon,answer_text)
@@ -568,7 +576,19 @@ def set_row(i, problem, answer, selection_positon, distance_table, answer_text, 
                       problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
                       problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
                       problem,selection_positon,answer_text = position_down(problem,selection_positon,answer_text)
-
+              elif(selection_positon[0] == i+1 and selection_positon[1] == 1) or (selection_positon[0] == i+2 and selection_positon[1] == 0) :
+                  if selection_positon[0] == i+1 and selection_positon[1] == 1:
+                      #print "パターン2"
+                      problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
+                      problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
+                      problem,selection_positon,answer_text = position_down(problem,selection_positon,answer_text)                
+                  if selection_positon[0] == i+2 and selection_positon[1] == 0: 
+                      #print "パターン3"
+                      problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
+                      problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
+                      problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
+                      problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
+                      problem,selection_positon,answer_text = position_down(problem,selection_positon,answer_text)                  
               else:
                   #print "OKKKKKKKKKKK"
                   if selection_positon[0] != i :
@@ -577,8 +597,9 @@ def set_row(i, problem, answer, selection_positon, distance_table, answer_text, 
                       if selection_positon[1] < x:
                           for n in range(abs(selection_positon[1] - (x))):
                               problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
-                      if selection_positon[1] > len(problem[0])-2:
-                          problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
+                      if selection_positon[1] > x:
+                          for n in range(abs(selection_positon[1] - (x))):
+                              problem,selection_positon,answer_text = position_left(problem,selection_positon,answer_text)
                       #print "パターン3"
                       problem,selection_positon,answer_text = position_right(problem,selection_positon,answer_text)
                       problem,selection_positon,answer_text = position_up(problem,selection_positon,answer_text)
@@ -630,7 +651,15 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     #check_matrix(answer,problem,selection_positon)
 
     for i in range(len(problem)-2):
-        problem, selection_positon, answer_text = set_row(i, problem, answer, selection_positon, distance_table, answer_text)
+
+        #if len(answer_text_R) > len(answer_text_L): 
+        if i % 4 == 0:        
+            problem_L, selection_positon_L, answer_text_L = set_row(i, problem, answer, selection_positon, distance_table, answer_text,"L")
+            problem,selection_positon,answer_text = problem_L,selection_positon_L,answer_text_L
+        else:
+            problem_R, selection_positon_R, answer_text_R = set_row(i, problem, answer, selection_positon, distance_table, answer_text,"R")
+            problem,selection_positon,answer_text = problem_R,selection_positon_R,answer_text_R
+
     #ラスト２段処理開始
     #print "ラスト2段処理！！！！xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 

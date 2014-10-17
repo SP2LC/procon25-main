@@ -9,6 +9,7 @@ import communication
 import time
 import json
 import config
+from multiprocessing import Pool
 
 ALL_COST = 0
 
@@ -626,6 +627,10 @@ def set_row(i, problem, answer, selection_positon, distance_table, answer_text, 
   #print "*****************************************************************"
   return problem, selection_positon, answer_text
 
+def process(args):
+  i, problem, answer, selection_positon, distance_table, answer_text, direction = args
+  return set_row(i, problem, answer, selection_positon, distance_table, answer_text, direction)
+
 def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, distance_table,answer_text,ALL_COST
     LIMIT_SELECTION = limit
@@ -650,11 +655,20 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     static_first_selection_positon = selection_positon
     #check_matrix(answer,problem,selection_positon)
 
+    pool = Pool(4)
+
     for i in range(len(problem)-2):
-        problem_R = deepcopy(problem)
-        problem_L = deepcopy(problem)
-        problem_R, selection_positon_R, answer_text_R = set_row(i, problem_R, answer, selection_positon, distance_table, answer_text,"R")
-        problem_L, selection_positon_L, answer_text_L = set_row(i, problem_L, answer, selection_positon, distance_table, answer_text,"L")
+        #problem_R = deepcopy(problem)
+        #problem_L = deepcopy(problem)
+        #problem_R, selection_positon_R, answer_text_R = set_row(i, problem_R, answer, selection_positon, distance_table, answer_text,"R")
+        #problem_L, selection_positon_L, answer_text_L = set_row(i, problem_L, answer, selection_positon, distance_table, answer_text,"L")
+        array = [
+            (i, problem, answer, selection_positon, distance_table, answer_text,"R"),
+            (i, problem, answer, selection_positon, distance_table, answer_text,"L")
+        ]
+        results = pool.map(process, array)
+        problem_R, selection_positon_R, answer_text_R = results[0]
+        problem_L, selection_positon_L, answer_text_L = results[1]
         if len(answer_text_R) > len(answer_text_L): 
         #if i % 4 == 0:        
             #problem_L, selection_positon_L, answer_text_L = set_row(i, problem, answer, selection_positon, distance_table, answer_text,"L")
@@ -662,6 +676,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
         else:
             #problem_R, selection_positon_R, answer_text_R = set_row(i, problem, answer, selection_positon, distance_table, answer_text,"R")
             problem,selection_positon,answer_text = problem_R,selection_positon_R,answer_text_R
+    pool.close()
 
     #ラスト２段処理開始
     #print "ラスト2段処理！！！！xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"

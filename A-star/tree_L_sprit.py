@@ -1,6 +1,9 @@
 #-*- coding:utf-8 -*-
 from heapq import heappush, heappop
 from copy import deepcopy
+from multiprocessing import Pool
+
+NUM_PROCESSES = 4
 
 ALL_COST = 0
 
@@ -739,7 +742,22 @@ def L_sprit(target_columns,target_rows,solve_problem,solve_answer,corner_text):
 
     return problem,answer_text
 
+def split_process(args):
+    return L_sprit(args[0], args[1], args[2], args[3], args[4])
+
 def corner_L_sprit(target_columns,target_rows,solve_problem,solve_answer):
+    pool = Pool(NUM_PROCESSES)
+    arg_array = [
+        (target_columns,target_rows,solve_problem,solve_answer,"UL"),
+        (target_columns,target_rows,solve_problem,solve_answer,"UR"),
+        (target_columns,target_rows,solve_problem,solve_answer,"DL"),
+        (target_columns,target_rows,solve_problem,solve_answer,"DR")
+    ]
+    results = pool.map(split_process, arg_array)
+    print results
+    best_problem, best_answer_text = min(results, key=lambda a: len(a[1]))
+    pool.close()
+    return best_problem, best_answer_text
     A_problem,A_answer_text = L_sprit(target_columns,target_rows,solve_problem,solve_answer,"UL")
     B_problem,B_answer_text = L_sprit(target_columns,target_rows,solve_problem,solve_answer,"UR")
     if len(A_answer_text) > len(B_answer_text):

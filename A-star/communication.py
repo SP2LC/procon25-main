@@ -6,6 +6,7 @@ import sys
 import re
 import math
 import json
+import os.path
 
 DIGEST_USER = "sp2lc"
 DIGEST_PASS = "********"
@@ -25,6 +26,8 @@ def make_problem(w, h):
 def get_problem(masterIP):
         para = None
         if masterIP[0:6] == "local:":
+          while(not os.path.exists("timing")):
+            pass
           f = open("problem.json", "r")
           para = json.load(f)
           f.close()

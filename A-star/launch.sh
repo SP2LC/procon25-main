@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ALGORITHMS=("puzzl.py" "L.py 3-3" "L-dynamic.py 4-4" "a_star.py")
+ALGORITHMS=("a_star.py" "puzzl.py" "rl-puzzl.py" "tree_puzzle.py") #"dynamic.py" "tree-L.py 3-3" "tree-L.py 3-4" "tree-L.py 4-4" "L.py 3-3" "L.py 3-4" "L.py 4-4")
 SERVER="192.168.2.3"
 
 function launch() {
@@ -22,12 +22,6 @@ EOF
   fi
 }
 
-for (( i = 0; i < ${#ALGORITHMS[@]}; i++ ))
-do
-  algo=${ALGORITHMS[$i]}
-  launch $algo
-done
-
 if [ -e problem.json ]
 then
   echo "deleting old problem.json"
@@ -37,6 +31,13 @@ if [ -e timing ]
 then
   rm timing
 fi
+
+for (( i = 0; i < ${#ALGORITHMS[@]}; i++ ))
+do
+  algo=${ALGORITHMS[$i]}
+  launch $algo
+done
+
 curl http://$SERVER:8000/ -o problem.json
 if [ -e problem.json ]
 then

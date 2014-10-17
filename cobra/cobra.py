@@ -23,6 +23,7 @@ import SocketServer
 import logging
 import socket
 import config
+import inverse
 
 
 VERSION = "プロコン本番用"
@@ -333,7 +334,7 @@ def do_Image_recognition():
   resultAToBWidth = {}
   # こうすることで、4重ループを簡単に書ける。
   for imgANum in itertools.product(range(splitColumns), range(splitRows)):
-    print "imgA=(%d, %d)" % imgANum
+    #print "imgA=(%d, %d)" % imgANum
     resultsHeight = []
     resultsWidth = []
     for imgBNum in itertools.product(range(splitColumns), range(splitRows)):
@@ -349,31 +350,14 @@ def do_Image_recognition():
     resultAToBHeight[imgANum] = sorted(resultsHeight, key=lambda a: a[1])
     resultAToBWidth[imgANum] = sorted(resultsWidth,key = lambda a: a[1])
 
-    print "H  imgB=%s" % ["%s %f" % a for a in resultAToBHeight[imgANum][0:3]]
-    print "W  imgB=%s" % ["%s %f" % a for a in resultAToBWidth[imgANum][0:3]]
+    #print "H  imgB=%s" % ["%s %f" % a for a in resultAToBHeight[imgANum][0:3]]
+    #print "W  imgB=%s" % ["%s %f" % a for a in resultAToBWidth[imgANum][0:3]]
 
   rightBottom = findRightBottom(resultAToBWidth, resultAToBHeight)
   print "右下はこいつだ!"
   print rightBottom[0]
   # 逆引きリストを作る
-  resultBToAHeight = {}
-  resultBToAWidth = {}
-
-  for k, v in resultAToBWidth.items():
-    for candicate in v:
-      if True:
-        if not candicate[0] in resultBToAWidth:
-          resultBToAWidth[candicate[0]] = []
-        resultBToAWidth[candicate[0]].append((k, candicate[1]))
-        resultBToAWidth[candicate[0]].sort(key=lambda a: a[1])
-
-  for k, v in resultAToBHeight.items():
-    for candicate in v:
-      if True:
-        if not candicate[0] in resultBToAHeight:
-          resultBToAHeight[candicate[0]] = []
-        resultBToAHeight[candicate[0]].append((k, candicate[1]))
-        resultBToAHeight[candicate[0]].sort(key=lambda a: a[1])
+  resultBToAWidth, resultBToAHeight = inverse.inverse2(resultAToBWidth, resultAToBHeight)
 
   leftBottom = findRightBottom(resultBToAWidth, resultAToBHeight)
   print "左下はこいつだ!"

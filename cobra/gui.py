@@ -13,13 +13,14 @@ SELECTED = 2
 # 与えられたimagesを破壊的に変更するらしい
 
 class ImageViewer(Tk.Frame):
-  def __init__(self, images, splitImages, retry, setter=lambda a: None):
+  def __init__(self, images, splitImages, retry, setter, wait):
     Tk.Frame.__init__(self, None)
     self.images = images
     self.original_images = copy.deepcopy(images)
     self.splitImages = splitImages
     self.retry_func = retry
     self.setter_func = setter
+    self.wait_func = wait
 
     self.state = NORMAL
     self.selected = None
@@ -75,6 +76,9 @@ class ImageViewer(Tk.Frame):
 
     self.retry_button = Tk.Button(self, text="Retry", command=self.retry)
     self.retry_button.pack()
+
+    self.wait_button = Tk.Button(self, text="Please Wait", command=self.wait, state="disabled") # ちょっと待ってボタンは最初は無効
+    self.wait_button.pack()
     
     self.pack()
 
@@ -84,6 +88,7 @@ class ImageViewer(Tk.Frame):
     print "ok!"
     #self.quit() # 閉じてない気がする
     self.setter_func(self.images)
+    self.wait_button.configure(state="normal")  # ちょっと待ってボタンを有効化
 
   def reset(self):
     print "reset!"
@@ -107,6 +112,10 @@ class ImageViewer(Tk.Frame):
       for j in range(len(self.images[1])):
         self.wrong[i][j] = False
     self.show_image()
+
+  def wait(self):
+    self.wait_func()
+    self.wait_button.configure(state="disabled") # 無効化
 
   def show_image(self):
     for i in range(len(self.images)):
@@ -310,7 +319,7 @@ class ImageViewer(Tk.Frame):
       self.images[i][0] = last_row[i]
     self.show_image()
 
-def show(images, splitImages, retry=lambda a, b: 0, setter=lambda a: None):
+def show(images, splitImages, retry=lambda a, b: 0, setter=lambda a: None, wait=lambda a: None):
   single_w = splitImages[0][0].shape[1]
   single_h = splitImages[0][0].shape[0]
   width = single_w * len(splitImages)
@@ -321,7 +330,7 @@ def show(images, splitImages, retry=lambda a, b: 0, setter=lambda a: None):
   if height > MAX_IMG_SIZE:
     ratio = float(MAX_IMG_SIZE) / height 
     splitImages = shrink(splitImages, ratio)
-  iv = ImageViewer(images, splitImages, retry, setter)
+  iv = ImageViewer(images, splitImages, retry, setter, wait)
   iv.mainloop()
   return iv.images
 

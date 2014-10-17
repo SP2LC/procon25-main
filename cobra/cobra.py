@@ -397,7 +397,10 @@ def do_Image_recognition():
     answer = array
     event.set() # 画像認識の完了を通知する
 
-  gui.show(sortedImages, splitImages, retry=retry, setter=setter)
+  def wait():
+    event.clear() # 画像認識が完了していないことにする
+
+  gui.show(sortedImages, splitImages, retry=retry, setter=setter, wait=wait)
   #ここまで画像認識
   return sortedImages
 

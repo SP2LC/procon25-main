@@ -1,7 +1,7 @@
 prob_id=$1
 server=$2
 
-prob_file=`printf 'prob%d02d.ppm' $prob_id`
+prob_file=`printf 'prob%02d.ppm' $prob_id`
 
 printf 'Downloading prob%02d from %s\n' $prob_id $server
 

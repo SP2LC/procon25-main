@@ -4,7 +4,11 @@ import Image, ImageTk
 import numpy as np
 import copy
 
-MAX_IMG_SIZE = 640
+MAX_IMG_WIDTH = 800
+MAX_IMG_HEIGHT = 550
+
+MIN_IMG_WIDTH = 300
+MIN_IMG_HEIGHT = 300
 
 NORMAL = 0
 SELECTING = 1
@@ -324,22 +328,44 @@ def show(images, splitImages, retry=lambda a, b: 0, setter=lambda a: None, wait=
   single_h = splitImages[0][0].shape[0]
   width = single_w * len(splitImages)
   height = single_h * len(splitImages[0])
-  if width > MAX_IMG_SIZE:
-    ratio = float(MAX_IMG_SIZE) / width
-    splitImages = shrink(splitImages, ratio)
-  if height > MAX_IMG_SIZE:
-    ratio = float(MAX_IMG_SIZE) / height 
-    splitImages = shrink(splitImages, ratio)
+  ratio = 1.0
+  if width < MIN_IMG_WIDTH:
+    ratio = float(MIN_IMG_WIDTH) / width
+  if height < MIN_IMG_HEIGHT:
+    ratio = float(MIN_IMG_HEIGHT) / height
+  if width > MAX_IMG_WIDTH:
+    ratio = float(MAX_IMG_WIDTH) / width
+  if height > MAX_IMG_HEIGHT:
+    ratio = float(MAX_IMG_HEIGHT) / height 
+  if width * ratio < MIN_IMG_WIDTH:
+    print "IMPOSSIBLE SMALL WIDTH"
+    splitImages = shrink(splitImages,
+        float(MIN_IMG_WIDTH) / width, ratio)
+  elif width * ratio > MAX_IMG_WIDTH:
+    print "IMPOSSIBLE BIG WIDTH"
+    splitImages = shrink(splitImages,
+        float(MAX_IMG_WIDTH) / width, ratio)
+  elif height * ratio < MIN_IMG_WIDTH:
+    print "IMPOSSIBLE SMALL HEIGHT"
+    splitImages = shrink(splitImages, ratio,
+        float(MIN_IMG_HEIGHT) / height)
+  elif height * ratio > MAX_IMG_WIDTH:
+    print "IMPOSSIBLE BIG HEIGHT"
+    splitImages = shrink(splitImages, ratio,
+        float(MAX_IMG_HEIGHT) / height)
+  else:
+    splitImages = shrink(splitImages, ratio, ratio)
   iv = ImageViewer(images, splitImages, retry, setter, wait)
   iv.mainloop()
   return iv.images
 
-def shrink(images_big, ratio):
-  print ratio
+def shrink(images_big, ratioX, ratioY):
+  print ratioX
+  print ratioY
   images = copy.deepcopy(images_big)
   for i in range(len(images)):
     for j in range(len(images[0])):
       pilimg = Image.fromarray(images[i][j])
-      pilimg = pilimg.resize((int(pilimg.size[0] * ratio), int(pilimg.size[1] * ratio)))
+      pilimg = pilimg.resize((int(pilimg.size[0] * ratioX), int(pilimg.size[1] * ratioY)))
       images[i][j] = np.asarray(pilimg)
   return images

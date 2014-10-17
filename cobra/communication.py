@@ -9,6 +9,10 @@ import sys
 import re
 import math
 import config
+import time
+
+RETRY_MAX = 10
+RETRY_INTERVAL = 0.2
 
 DIGEST_USER = "sp2lc"
 DIGEST_PASS = "********"
@@ -24,8 +28,14 @@ def get_problem(problem_id,to_communication):
 			exit()
 		return r.content
 	elif to_communication == "procon":
-		r = requests.get("http://%s/problem/prob%02d.ppm" % (config.serverIP, int(problem_id)))
-		return r.content
+                for i in range(RETRY_MAX):
+                  r = requests.get("http://%s/problem/prob%02d.ppm" % (config.serverIP, int(problem_id)))
+                  if r.status_code == 403:
+                    print "フライング i=%d" % i
+                    time.sleep(RETRY_INTERVAL)
+                  else:
+		    return r.content
+                return ""
         else:
                 # practice
                 r = requests.get("http://procon2014-practice.oknct-ict.org/problem/ppm/%d" % int(problem_id))

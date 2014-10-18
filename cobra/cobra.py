@@ -408,31 +408,34 @@ def server():
 def sender():
   global best_cost
   while True:
-    ans = answer_queue.get()
-    runtime = int(time.time() - start)
-    ans_str = ans
-    cost = calculation_cost_from_string(ans_str)
-    cout_select_of_answer = int(ans_str.split("\r\n")[0])
-    true_cost = cost  + (runtime * 100)
-    print 'cost is '+ str(cost)
-    print 'time_cost is ' + str((runtime * 100))
-    print 'all cost is '+ str(true_cost)
-    print 'ans is \n'+ans_str
-    print best_cost
-    if true_cost < best_cost and cout_select_of_answer <= LIMIT_SELECTION:
-      print "send this answer!"
-      if not(NO_POST):
-        response = (communication.post_answer(ans_str, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))
-        print response
-        if TO_COMMUNICATION == "procon" and response[0:8] != "ACCEPTED":
-          print ESC_RED + "invalid answer" + ESC_RESET
-        elif TO_COMMUNICATION == "procon" and response.split(" ")[1] != "0":
-          print ESC_RED + "mismatch" + ESC_RESET
-        else:
-          print ESC_GREEN + ("正解 コスト=%d" % true_cost) + ESC_RESET  # 緑
-          best_cost = true_cost
-    else:
-      print ESC_YELLOW + "not send this answer..." + ESC_RESET # 黄色
+    try:
+      ans = answer_queue.get()
+      runtime = int(time.time() - start)
+      ans_str = ans
+      cost = calculation_cost_from_string(ans_str)
+      cout_select_of_answer = int(ans_str.split("\r\n")[0])
+      true_cost = cost  + (runtime * 100)
+      print 'cost is '+ str(cost)
+      print 'time_cost is ' + str((runtime * 100))
+      print 'all cost is '+ str(true_cost)
+      print 'ans is \n'+ans_str
+      print best_cost
+      if true_cost < best_cost and cout_select_of_answer <= LIMIT_SELECTION:
+        print "send this answer!"
+        if not(NO_POST):
+          response = (communication.post_answer(ans_str, runtime, VERSION, sys.argv[1],TO_COMMUNICATION))
+          print response
+          if TO_COMMUNICATION == "procon" and response[0:8] != "ACCEPTED":
+            print ESC_RED + "invalid answer" + ESC_RESET
+          elif TO_COMMUNICATION == "procon" and response.split(" ")[1] != "0":
+            print ESC_RED + "mismatch" + ESC_RESET
+          else:
+            print ESC_GREEN + ("正解 コスト=%d" % true_cost) + ESC_RESET  # 緑
+            best_cost = true_cost
+      else:
+        print ESC_YELLOW + "not send this answer..." + ESC_RESET # 黄色
+    except:
+      print ESC_RED + "format error" + ESC_RESET
 
 server_thr = threading.Thread(target=server)
 server_thr.daemon = True

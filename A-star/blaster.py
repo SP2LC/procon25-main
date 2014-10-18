@@ -272,19 +272,26 @@ def move_selection(pi,pj,problem,answer,purpose_positon,selection_positon,answer
     si,sj = selection_positon
 
     if False and abs(p_to_pp_dis[0]) + abs(p_to_pp_dis[1]) > 3 and sel_count + 2 <= LIMIT_SELECTION:
-      print "WHOAH!"
-      sel_count += 1
-      if len(answer_text.split("\r\n")[-1]) == 0:
-        # さいしょだったら
-        answer_text = ""
-      else:
-        answer_text = answer_text + "\r\n"
       if Right:
-        return problem, (pi, pj + 1), (pi, pj), answer_text + hexsel(pi, pj + 1) + "\r\nUNKNOWN\r\n"
+        new_p = (pi, pj + 1)
       elif Left:
-        return problem, (pi, pj - 1), (pi, pj), answer_text + hexsel(pi, pj - 1) + "\r\nUNKNOWN\r\n"
+        new_p = (pi, pj - 1)
       elif Top:
-        return problem, (pi - 1, pj), (pi, pj), answer_text + hexsel(pi - 1, pj) + "\r\nUNKNOWN\r\n"
+        new_p = (pi - 1, pj)
+      print new_p
+      print_matrix(problem)
+      if not problem[new_p[0]][new_p[1]][2]:
+        print "WHOAH!"
+        sel_count += 1
+        if len(answer_text.split("\r\n")[-1]) == 0:
+          # さいしょだったら
+          answer_text = ""
+          sel_count -= 1
+        else:
+          answer_text = answer_text + "\r\n"
+        return problem, new_p, (pi, pj), answer_text + hexsel(new_p[0], new_p[1]) + "\r\nUNKNOWN\r\n"
+      else:
+        print "NKWAK WMAGKN"
 
     #print Top,Left,Right 
 
@@ -636,6 +643,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     #ラスト２段処理開始
     #print "ラスト2段処理！！！！xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     check_matrix(answer, problem, selection_positon)
+    print_matrix(problem)
 
     for j in range(len(problem[0])-2):
         #print "answer"
@@ -805,6 +813,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
     if static_selection_positon != (-1, -1):
         answer_text += "\r\n%X%X"%(static_selection_positon[1],static_selection_positon[0]) +"\r\n"+ "UNKNOWN" + "\r\n"+ answer_text2
+        sel_count += 1
     #encode_text =  encode_answer_format(answer_text,answer_text2,static_selection_positon,static_first_selection_positon, sel_count)
     encode_text = str(sel_count) + "\r\n"
     lines = answer_text.split("\r\n")

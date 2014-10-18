@@ -24,6 +24,7 @@ import logging
 import socket
 import config
 import inverse
+import subprocess
 
 
 VERSION = "プロコン本番用"
@@ -446,6 +447,8 @@ print "Press Enter to start image recognition"
 raw_input()
 
 start = time.time()
+
+subprocess.Popen(["bash", "getproblem.sh", str(sys.argv[1]), config.serverIP])
 
 answer = do_Image_recognition()
 event.set() # 画像認識の完了を通知する

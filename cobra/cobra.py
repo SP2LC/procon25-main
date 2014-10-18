@@ -24,6 +24,7 @@ import logging
 import socket
 import config
 import inverse
+from copy import deepcopy
 
 
 VERSION = "プロコン本番用"
@@ -328,7 +329,7 @@ ESC_WHITE_BG = "\033[47m"
 ESC_RESET_BG = "\033[49m"
 
 def do_Image_recognition():
-  global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, splitColumns, splitRows, answer
+  global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, splitColumns, splitRows, answer, answer, zero4_answer
   ppmFile_content = communication.get_problem(sys.argv[1],TO_COMMUNICATION)
   ppmFile = ppmFile_content[:100]
   splitStrings = re.split("[\t\r\n ]+", ppmFile)
@@ -389,7 +390,7 @@ def do_Image_recognition():
   sortedImages = createArray(splitColumns, splitRows)
   sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, sortedImages)
 
-  zero4_answer = sortedImages
+  zero4_answer = deepcopy(sortedImages)
   zero4_event.set()
 
   print sortedImages
@@ -399,7 +400,7 @@ def do_Image_recognition():
 
   def setter(array):
     global answer
-    answer = array
+    answer = deepcopy(array)
     event.set() # 画像認識の完了を通知する
 
   def wait():
@@ -413,8 +414,9 @@ host = socket.gethostbyname(socket.gethostname())
 print "location is %s" % host
 port = config.port
 
-class ReuseServer(SocketServer.TCPServer):
+class ReuseServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
   allow_reuse_address = True
+  daemon_threads = True
 
 httpd = ReuseServer((host, port), Procon_Cobra_Handler)
 

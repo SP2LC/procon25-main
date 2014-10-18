@@ -32,6 +32,12 @@ def get_problem(masterIP):
           f = open("problem.json", "r")
           para = json.load(f)
           f.close()
+        elif masterIP[0:6] == "zero4:":
+          while(not os.path.exists("zero4-timing")):
+            time.sleep(0.01)
+          f = open("zero4-problem.json", "r")
+          para = json.load(f)
+          f.close()
         else:
           r = requests.get('http://%s:8000' % masterIP, timeout=10000000)
           print r.text
@@ -48,7 +54,7 @@ def get_problem(masterIP):
 
 
 def post(master, ans_str):
-  if master[0:6] == "local:":
+  if master[0:6] == "local:" or master[0:6] == "zero4:":
     master = master[6:]
   print ans_str
   r = requests.post("http://%s:8000/" % master, data = {'answer' : ans_str})

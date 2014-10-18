@@ -271,6 +271,9 @@ def move_selection(pi,pj,problem,answer,purpose_positon,selection_positon,answer
     pi,pj = purpose_positon
     si,sj = selection_positon
 
+    def check(i, j):
+      return len(problem) - i <= 2 and len(problem[0]) - j <= 2
+
     if abs(p_to_pp_dis[0]) + abs(p_to_pp_dis[1]) > 3 and sel_count + 3 <= LIMIT_SELECTION:
       if Right:
         new_p = (pi, pj + 1)
@@ -278,10 +281,11 @@ def move_selection(pi,pj,problem,answer,purpose_positon,selection_positon,answer
         new_p = (pi, pj - 1)
       elif Top:
         new_p = (pi - 1, pj)
-      print new_p
-      print_matrix(problem)
-      if not problem[new_p[0]][new_p[1]][2]:
-        print "WHOAH!"
+      #print new_p
+      #print_matrix(problem)
+      orig = search(answer, problem[new_p[0]][new_p[1]])
+      if not problem[new_p[0]][new_p[1]][2] and check(orig[0], orig[1]):
+        #print "WHOAH!"
         sel_count += 1
         if len(answer_text.split("\r\n")[-1]) == 0:
           # さいしょだったら
@@ -291,7 +295,8 @@ def move_selection(pi,pj,problem,answer,purpose_positon,selection_positon,answer
           answer_text = answer_text + "\r\n"
         return problem, new_p, (pi, pj), answer_text + hexsel(new_p[0], new_p[1]) + "\r\nUNKNOWN\r\n"
       else:
-        print "NKWAK WMAGKN"
+        pass
+        #print "NKWAK WMAGKN"
 
     #print Top,Left,Right 
 
@@ -466,10 +471,10 @@ def move(pi,pj,i,j,problem,answer,selection_positon,answer_text,table):
 
 
 
-    print_matrix(problem)
-    check_matrix(problem,answer,selection_positon)
-    print "目的ピース",purpose,"目的地",(pi,pj),"目的ピースポジション",purpose_positon
-    print "選択ピース位置",selection_positon
+    #print_matrix(problem)
+    #check_matrix(problem,answer,selection_positon)
+    #print "目的ピース",purpose,"目的地",(pi,pj),"目的ピースポジション",purpose_positon
+    #print "選択ピース位置",selection_positon
     if purpose_positon != (pi,pj):#目的ピースが目的地になかったとき
         #print "すでに目的地にピースがある"
     #else:
@@ -477,7 +482,7 @@ def move(pi,pj,i,j,problem,answer,selection_positon,answer_text,table):
         problem,selection_positon,purpose_positon,answer_text = move_selection(pi,pj,problem,answer,purpose_positon,selection_positon,answer_text,table)
         problem[purpose_positon[0]][purpose_positon[1]] =  (problem[purpose_positon[0]][purpose_positon[1]][0],problem[purpose_positon[0]][purpose_positon[1]][1],False)#目的ピースの開放
     #print answer_text
-    print_matrix(problem)
+    #print_matrix(problem)
 
     problem,selection_positon,answer_text = move_purpose(pi,pj,problem,purpose_positon,selection_positon,answer_text,table)
     problem[pi][pj] = (problem[pi][pj][0],problem[pi][pj][1],True)
@@ -649,6 +654,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
 
     selection_positon = search(problem,selection)
     answer_text += "\r\n" + hexsel(selection_positon[0], selection_positon[1]) + "\r\nUNKNOWN\r\n"
+    sel_count += 1
 
     for j in range(len(problem[0])-2):
         #print "answer"

@@ -271,7 +271,7 @@ def move_selection(pi,pj,problem,answer,purpose_positon,selection_positon,answer
     pi,pj = purpose_positon
     si,sj = selection_positon
 
-    if False and abs(p_to_pp_dis[0]) + abs(p_to_pp_dis[1]) > 3 and sel_count + 2 <= LIMIT_SELECTION:
+    if abs(p_to_pp_dis[0]) + abs(p_to_pp_dis[1]) > 3 and sel_count + 3 <= LIMIT_SELECTION:
       if Right:
         new_p = (pi, pj + 1)
       elif Left:
@@ -466,9 +466,10 @@ def move(pi,pj,i,j,problem,answer,selection_positon,answer_text,table):
 
 
 
-    #print_matrix(problem)
-    #print "目的ピース",purpose,"目的地",(pi,pj),"目的ピースポジション",purpose_positon
-    #print "選択ピース位置",selection_positon
+    print_matrix(problem)
+    check_matrix(problem,answer,selection_positon)
+    print "目的ピース",purpose,"目的地",(pi,pj),"目的ピースポジション",purpose_positon
+    print "選択ピース位置",selection_positon
     if purpose_positon != (pi,pj):#目的ピースが目的地になかったとき
         #print "すでに目的地にピースがある"
     #else:
@@ -476,7 +477,7 @@ def move(pi,pj,i,j,problem,answer,selection_positon,answer_text,table):
         problem,selection_positon,purpose_positon,answer_text = move_selection(pi,pj,problem,answer,purpose_positon,selection_positon,answer_text,table)
         problem[purpose_positon[0]][purpose_positon[1]] =  (problem[purpose_positon[0]][purpose_positon[1]][0],problem[purpose_positon[0]][purpose_positon[1]][1],False)#目的ピースの開放
     #print answer_text
-   # print_matrix(problem)
+    print_matrix(problem)
 
     problem,selection_positon,answer_text = move_purpose(pi,pj,problem,purpose_positon,selection_positon,answer_text,table)
     problem[pi][pj] = (problem[pi][pj][0],problem[pi][pj][1],True)
@@ -503,8 +504,8 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     problem = matrix_flg_add(problem)#一致マスのフラグをマトリックスに付与
     #print "starrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrRFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFff"
     answer_text = ""
-    #print "answer"
-    #print_matrix(answer)
+    print "answer"
+    print_matrix(answer)
 
     #print "problem"
     #print_matrix(problem)
@@ -645,6 +646,10 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     check_matrix(answer, problem, selection_positon)
     print_matrix(problem)
 
+
+    selection_positon = search(problem,selection)
+    answer_text += "\r\n" + hexsel(selection_positon[0], selection_positon[1]) + "\r\nUNKNOWN\r\n"
+
     for j in range(len(problem[0])-2):
         #print "answer"
         #print_matrix(answer)
@@ -726,7 +731,7 @@ def solve(sortedImages, splitColumns, splitRows, limit, sel_rate, exc_rate):
     #print "problem"
     #print_matrix(problem)
     #dummy,dummy = check_matrix(answer,problem,selection_positon)
-    #check_matrix(answer,problem,selection_positon)
+    check_matrix(answer,problem,selection_positon)
     flg = False
     #print "右下4マス処理================================================================================"
     

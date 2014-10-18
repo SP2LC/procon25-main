@@ -1,7 +1,7 @@
 #!/bin/bash
 
-ALGORITHMS=("a_star.py" "puzzl.py" "rl-puzzl.py" "tree_puzzle.py") #"dynamic.py" "tree-L.py 3-3" "tree-L.py 3-4" "tree-L.py 4-4" "L.py 3-3" "L.py 3-4" "L.py 4-4")
-SERVER="192.168.2.3"
+ALGORITHMS=("a_star.py" "puzzl.py" "rl-puzzl.py" "tree_puzzle.py" "tree-L.py 3-3" "tree-L.py 3-4")
+SERVER="192.168.222.3"
 
 function launch() {
   echo "launching $1 $2"

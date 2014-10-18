@@ -24,6 +24,7 @@ import logging
 import socket
 import config
 import inverse
+from copy import deepcopy
 
 
 VERSION = "プロコン本番用"
@@ -39,9 +40,11 @@ splitRows = 0
 answer = []
 start = 0
 best_cost = 99999999999999
+zero4_answer = []
 
 # 画像認識待機用
 event = threading.Event()
+zero4_event = threading.Event()
 
 # 解答キュー
 answer_queue = Queue.Queue()
@@ -63,10 +66,25 @@ class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     self.wfile.write("enqueue")
 
   def do_GET(self):
+    if self.path == "/zero4":
+      self.zero4_response()
+      return
     if not event.is_set():
       print "waiting..."
     event.wait()  # 画像認識完了通知が来るまで待機
     data = {'answer' : answer, 'columns': splitColumns , 'rows' : splitRows , 'lim_select' : LIMIT_SELECTION , 'selection_rate' : SELECTON_RATE, 'exchange_rate' : EXCHANGE_RATE}
+    body = json.dumps(data)
+    self.send_response(200)
+    self.send_header('Content-type', 'text/html; charset=utf-8')
+    self.send_header('Content-length', len(body))
+    self.end_headers()
+    self.wfile.write(body)
+
+  def zero4_response(self):
+    if not zero4_event.is_set():
+      print "zero4 waiting..."
+    zero4_event.wait()  # 画像認識完了通知が来るまで待機
+    data = {'answer' : zero4_answer, 'columns': splitColumns , 'rows' : splitRows , 'lim_select' : LIMIT_SELECTION , 'selection_rate' : SELECTON_RATE, 'exchange_rate' : EXCHANGE_RATE}
     body = json.dumps(data)
     self.send_response(200)
     self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -311,7 +329,7 @@ ESC_WHITE_BG = "\033[47m"
 ESC_RESET_BG = "\033[49m"
 
 def do_Image_recognition():
-  global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, splitColumns, splitRows, answer
+  global LIMIT_SELECTION, SELECTON_RATE, EXCHANGE_RATE, splitColumns, splitRows, answer, answer, zero4_answer
   ppmFile_content = communication.get_problem(sys.argv[1],TO_COMMUNICATION)
   ppmFile = ppmFile_content[:100]
   splitStrings = re.split("[\t\r\n ]+", ppmFile)
@@ -371,6 +389,10 @@ def do_Image_recognition():
 
   sortedImages = createArray(splitColumns, splitRows)
   sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, sortedImages)
+
+  zero4_answer = deepcopy(sortedImages)
+  zero4_event.set()
+
   print sortedImages
 
   def retry(array, correctImages):
@@ -378,7 +400,7 @@ def do_Image_recognition():
 
   def setter(array):
     global answer
-    answer = array
+    answer = deepcopy(array)
     event.set() # 画像認識の完了を通知する
 
   def wait():
@@ -392,8 +414,9 @@ host = socket.gethostbyname(socket.gethostname())
 print "location is %s" % host
 port = config.port
 
-class ReuseServer(SocketServer.TCPServer):
+class ReuseServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
   allow_reuse_address = True
+  daemon_threads = True
 
 httpd = ReuseServer((host, port), Procon_Cobra_Handler)
 

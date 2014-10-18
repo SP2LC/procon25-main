@@ -39,11 +39,9 @@ splitRows = 0
 answer = []
 start = 0
 best_cost = 99999999999999
-zero4_answer = []
 
 # 画像認識待機用
 event = threading.Event()
-zero4_event = threading.Event()
 
 # 解答キュー
 answer_queue = Queue.Queue()
@@ -65,25 +63,10 @@ class Procon_Cobra_Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     self.wfile.write("enqueue")
 
   def do_GET(self):
-    if self.path == "/zero4":
-      self.zero4_response()
-      return
     if not event.is_set():
       print "waiting..."
     event.wait()  # 画像認識完了通知が来るまで待機
     data = {'answer' : answer, 'columns': splitColumns , 'rows' : splitRows , 'lim_select' : LIMIT_SELECTION , 'selection_rate' : SELECTON_RATE, 'exchange_rate' : EXCHANGE_RATE}
-    body = json.dumps(data)
-    self.send_response(200)
-    self.send_header('Content-type', 'text/html; charset=utf-8')
-    self.send_header('Content-length', len(body))
-    self.end_headers()
-    self.wfile.write(body)
-
-  def zero4_response(self):
-    if not zero4_event.is_set():
-      print "zero4 waiting..."
-    zero4_event.wait()  # 画像認識完了通知が来るまで待機
-    data = {'answer' : zero4_answer, 'columns': splitColumns , 'rows' : splitRows , 'lim_select' : LIMIT_SELECTION , 'selection_rate' : SELECTON_RATE, 'exchange_rate' : EXCHANGE_RATE}
     body = json.dumps(data)
     self.send_response(200)
     self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -388,10 +371,6 @@ def do_Image_recognition():
 
   sortedImages = createArray(splitColumns, splitRows)
   sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, sortedImages)
-
-  zero4_answer = sortedImages
-  zero4_event.set()
-
   print sortedImages
 
   def retry(array, correctImages):

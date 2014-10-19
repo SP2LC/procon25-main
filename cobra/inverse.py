@@ -8,7 +8,9 @@ def inverse(resultAToB):
         if not candicate[0] in resultBToA:
           resultBToA[candicate[0]] = []
         resultBToA[candicate[0]].append((k, candicate[1]))
-        resultBToA[candicate[0]].sort(key=lambda a: a[1])
+        #resultBToA[candicate[0]].sort(key=lambda a: a[1])
+  for key in resultBToA.keys():
+    resultBToA[key].sort(key=lambda a: a[1])
   return resultBToA
 
 def inverse2(resultAToBWidth, resultAToBHeight):

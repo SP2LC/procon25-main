@@ -371,24 +371,26 @@ def do_Image_recognition():
     #print "H  imgB=%s" % ["%s %f" % a for a in resultAToBHeight[imgANum][0:3]]
     #print "W  imgB=%s" % ["%s %f" % a for a in resultAToBWidth[imgANum][0:3]]
 
-  rightBottom = findRightBottom(resultAToBWidth, resultAToBHeight)
-  print "右下はこいつだ!"
-  print rightBottom[0]
+  s = time.time()
+  #rightBottom = findRightBottom(resultAToBWidth, resultAToBHeight)
+  #print "右下はこいつだ!"
+  #print rightBottom[0]
   # 逆引きリストを作る
   resultBToAWidth, resultBToAHeight = inverse.inverse2(resultAToBWidth, resultAToBHeight)
 
-  leftBottom = findRightBottom(resultBToAWidth, resultAToBHeight)
-  print "左下はこいつだ!"
-  print leftBottom[0]
-  leftTop = findRightBottom(resultBToAWidth, resultBToAHeight)
-  print "左上はこいつだ!"
-  print leftTop[0]
-  rightTop = findRightBottom(resultAToBWidth, resultBToAHeight)
-  print "右上はこいつだ!"
-  print rightTop[0]
+  #leftBottom = findRightBottom(resultBToAWidth, resultAToBHeight)
+  #print "左下はこいつだ!"
+  #print leftBottom[0]
+  #leftTop = findRightBottom(resultBToAWidth, resultBToAHeight)
+  #print "左上はこいつだ!"
+  #print leftTop[0]
+  #rightTop = findRightBottom(resultAToBWidth, resultBToAHeight)
+  #print "右上はこいつだ!"
+  #print rightTop[0]
 
   sortedImages = createArray(splitColumns, splitRows)
   sortImages2(resultAToBWidth, resultBToAWidth, resultAToBHeight, resultBToAHeight, sortedImages)
+  print "ITME = %f" % (time.time() - s)
 
   zero4_answer = deepcopy(sortedImages)
   zero4_event.set()

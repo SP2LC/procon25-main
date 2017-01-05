@@ -22,7 +22,7 @@ PRACTICE_PASS = "********"
 
 def get_problem(problem_id,to_communication):
 	if to_communication == "sp2lc":
-		r = requests.get('http://sp2lc.salesio-sp.ac.jp/procon.php',params = {'probID' : problem_id}, auth=HTTPDigestAuth(DIGEST_USER, DIGEST_PASS))
+		r = requests.get('http://sp2lc.salesio-sp.ac.jp/procon25-test/procon.php',params = {'probID' : problem_id}, auth=HTTPDigestAuth(DIGEST_USER, DIGEST_PASS))
 		if r.text == "error" :
 			print "server error"
 			exit()
@@ -44,7 +44,7 @@ def get_problem(problem_id,to_communication):
 
 def post_answer(answer_string, time, version_string, problem_id,to_communication):
 	if to_communication == "sp2lc":
-		r = requests.post('http://sp2lc.salesio-sp.ac.jp/procon.php',data = {'answer_string' : answer_string , 'time' : time , 'version' : version_string, 'probID' : problem_id}, auth=HTTPDigestAuth(DIGEST_USER, DIGEST_PASS))
+		r = requests.post('http://sp2lc.salesio-sp.ac.jp/procon25-test/procon.php',data = {'answer_string' : answer_string , 'time' : time , 'version' : version_string, 'probID' : problem_id}, auth=HTTPDigestAuth(DIGEST_USER, DIGEST_PASS))
 		if r.text == "error" :
 			print "server error"
 			exit()
@@ -60,6 +60,3 @@ def post_answer(answer_string, time, version_string, problem_id,to_communication
                 r = requests.post("http://procon2014-practice.oknct-ict.org/solve/json/%d" % int(problem_id), data={"username": PRACTICE_USER, "passwd": PRACTICE_PASS, "answer_text": answer_string})
                 print r.text
                 return r.text
-
-
-

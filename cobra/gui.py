@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import Tkinter as Tk
-import Image, ImageTk
+from PIL import Image, ImageTk
 import numpy as np
 import copy
 
@@ -83,7 +83,7 @@ class ImageViewer(Tk.Frame):
 
     self.wait_button = Tk.Button(self, text="Please Wait", command=self.wait, state="disabled") # ちょっと待ってボタンは最初は無効
     self.wait_button.pack()
-    
+
     self.pack()
 
     self.show_image()
@@ -220,7 +220,7 @@ class ImageViewer(Tk.Frame):
               self.exchange(orig, dest)
         else:
           for k in range(self.selected_wh[0]):
-            for l in range(self.selected_wh[1]): 
+            for l in range(self.selected_wh[1]):
               orig = ((self.selected[0] + (self.selected_wh[0]-k))-1, (self.selected[1] + (self.selected_wh[1] - l))-1)
               dest = ((i_new + (self.selected_wh[0] - k))-1, (j_new +(self.selected_wh[1] - l))-1)
               print "exchange %s to %s" % (orig, dest)
@@ -336,7 +336,7 @@ def show(images, splitImages, retry=lambda a, b: 0, setter=lambda a: None, wait=
   if width > MAX_IMG_WIDTH:
     ratio = float(MAX_IMG_WIDTH) / width
   if height > MAX_IMG_HEIGHT:
-    ratio = float(MAX_IMG_HEIGHT) / height 
+    ratio = float(MAX_IMG_HEIGHT) / height
   if width * ratio < MIN_IMG_WIDTH:
     print "IMPOSSIBLE SMALL WIDTH"
     splitImages = shrink(splitImages,
